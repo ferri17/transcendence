@@ -1,8 +1,8 @@
 services:
-    frontend:
-        container_name: frontend
-        build: ./frontend
-        image: frontend
+    nginxx:
+        container_name: nginxx
+        build: ./nginxx
+        image: nginxx
         volumes:
             - frontend_data:/usr/share/nginx/html
         ports:
