@@ -15,7 +15,7 @@ services:
     build: ./django
     image: django
     volumes:
-      - ./django/app:/home/apriego-/django-app
+      - django_data:/home/apriego-/django/
     ports:
       - "8080:8080"
     networks:
@@ -25,13 +25,13 @@ volumes:
   node_data:
     driver: local
     driver_opts:
-      device: "/home/apriego-/node/node_modules"
+      device: "./node/res/node_modules"
       o: bind
       type: none
   django_data:
     driver: local
     driver_opts:
-      device: "/home/apriego-/django"
+      device: "./django/res"
       o: bind
       type: none
 

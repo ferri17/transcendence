@@ -2,8 +2,6 @@
 all:
 	docker compose -f docker-compose.yml up --detach --build
 
-django:
-	docker compose -f django up --detach --build
 clean:
 	@if [ ! -z "$$(docker ps -aq)" ]; then \
 		docker stop $$(docker ps -aq); \

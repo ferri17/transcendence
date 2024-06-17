@@ -11,8 +11,6 @@ function getVars(){
     var jsonDone = ({"user": inName.value})
     jsonDone["mail"] = inEmail.value
     jsonDone["psw"] = inPass.value
-    jsonDone = 123
-    jsonDone = "asdfasdfasdf"
     return jsonDone
 }
 

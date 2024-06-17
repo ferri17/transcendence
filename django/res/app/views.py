@@ -20,10 +20,10 @@ def enviar_mensaje(request):
         response['msg'] = msg
     elif request.method == "POST":
         response = {'respuest': 'POST'}
-        response['msg'] = request.POST.get('msg')
-        usr = request.POST.get('user')
-        mail = request.POST.get('mail')
-        psw = request.POST.get('psw')
+        response['msg'] = "SDFJGSKDFGKJ"
+        usr = body.get('user')
+        mail = body.get('mail')
+        psw = body.get('psw')
         checkCred(usr, mail, psw)
     return JsonResponse(response)
 
