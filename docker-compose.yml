@@ -16,11 +16,24 @@ services:
     image: django
     volumes:
       - django_data:/home/apriego-/django/
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     networks:
       - app-network
-
+  postgres:
+    build: ./postgreSQL
+    container_name: postgres
+    image: postgres
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/home/apriego-/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
 volumes:
   node_data:
     driver: local
@@ -32,6 +45,12 @@ volumes:
     driver: local
     driver_opts:
       device: "./django/res"
+      o: bind
+      type: none
+  postgres_data:
+    driver: local
+    driver_opts:
+      device: "./postgreSQL/res"
       o: bind
       type: none
 

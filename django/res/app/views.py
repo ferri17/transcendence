@@ -20,7 +20,9 @@ def enviar_mensaje(request):
         response['msg'] = msg
     elif request.method == "POST":
         response = {'respuest': 'POST'}
-        response['msg'] = "SDFJGSKDFGKJ"
+        response['usr'] = body.get('user')
+        response['mail'] = body.get('mail')
+        response['psw'] = body.get('psw')
         usr = body.get('user')
         mail = body.get('mail')
         psw = body.get('psw')

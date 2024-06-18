@@ -1,0 +1,6 @@
+
+CREATE TABLE users(
+    login VARCHAR(15) PRIMARY KEY,
+    alias VARCHAR(30),
+    email VARCHAR(200) UNIQUE NOT NULL
+);

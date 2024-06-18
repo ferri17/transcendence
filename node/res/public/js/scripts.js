@@ -2,16 +2,51 @@
 function test() {
     console.log("HIHIHIHIHI");
 }
+UID = "u-s4t2ud-c9372edee74345442b4a74d561037186bc6cc251b40413f8291d92e5ee4257b1"
+async function post42(url, payload) {
+    url = "https://api.intra.42.fr" + url;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams(payload)
+    });
+    return response.json();
+}
+
+async function get42(url, params) {
+    const queryParams = new URLSearchParams(params).toString();
+    url = "https://api.intra.42.fr" + url + '?' + queryParams;
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    });
+    return response.json();
+  }
+
+async function callApi42(){
+    const params = new URLSearchParams ({
+        "client_id": UID,
+        "redirect_uri": "http://localhost:3000/",
+        "scope": "public",
+        "state": "1234566i754twrqwdfghgfddtrwsewrt",
+        "response_type": "code"
+    });
+    window.location.href = `https://api.intra.42.fr/oauth/authorize/?${params.toString()}`;
+}
 
 function getVars(){
-    var inEmail = document.getElementById("email")
-    var inName = document.getElementById("name")
-    var inPass = document.getElementById("pass")
+    let inEmail = document.getElementById("email");
+    let inName = document.getElementById("name");
+    let inPass = document.getElementById("pass");
 
-    var jsonDone = ({"user": inName.value})
-    jsonDone["mail"] = inEmail.value
-    jsonDone["psw"] = inPass.value
-    return jsonDone
+    let jsonDone = ({"user": inName.value});
+    jsonDone["mail"] = inEmail.value;
+    jsonDone["psw"] = inPass.value;
+    return jsonDone;
 }
 
 function sendToBackend() {
@@ -33,7 +68,23 @@ function sendToBackend() {
     .catch(error => console.error('There has been a problem with your fetch operation:', error));
 }
 
+
+function getGetVars() {
+    const querySearch = window.location.search;
+    const URLParams = new URLSearchParams(querySearch);
+    
+    if (URLParams)
+    {
+        let code = URLParams.get('code');
+        let state = URLParams.get('state');
+        console.log("CODE: " + code);
+        console.log("STATE: " + state);
+    }
+}
+
 window.addEventListener('DOMContentLoaded', event => {
+
+    getGetVars();
 
     // Obtener referencia al formulario y al botón
     var formulario = document.getElementById("contactForm");
