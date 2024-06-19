@@ -20,4 +20,5 @@ from . import views
 urlpatterns = [
     path('enviar-mensaje/', views.enviar_mensaje, name='enviar-mensaje'),
     path('obtener-respuesta/', views.obtener_respuesta, name='obtener-respuesta'),
+    path('loginIntra/', views.loginIntra, name='loginIntra'),
 ]

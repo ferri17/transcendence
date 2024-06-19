@@ -69,22 +69,78 @@ function sendToBackend() {
 }
 
 
-function getGetVars() {
+function getPathVars() {
     const querySearch = window.location.search;
     const URLParams = new URLSearchParams(querySearch);
     
     if (URLParams)
     {
-        let code = URLParams.get('code');
-        let state = URLParams.get('state');
-        console.log("CODE: " + code);
-        console.log("STATE: " + state);
+        let vars = {};
+        vars["code"] = URLParams.get('code');
+        vars["state"] = URLParams.get('state');
+        return vars
     }
+}
+
+function callBackAccess() {
+    let vars = getPathVars();0
+    console.log("CODE: " + vars["code"]);
+    console.log("STATE: " + vars["state"]);
+    fetch('http://localhost:8080/loginIntra/', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(getPathVars())
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        if (data["access_token"])
+        {
+            fetch('https://api.intra.42.fr/v2/me', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + data["access_token"]
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                let img = data['image'];
+                let linkImg = img['link'];
+                console.log(linkImg);
+                var divimg = document.getElementById("img-logointra");
+                var imgCont = document.createElement('img');
+                imgCont.src = linkImg;
+                imgCont.alt = "Intra IMG";
+                imgCont.height = 150;
+                imgCont.width = 150;
+                imgCont.className = "img-circ";
+                divimg.appendChild(imgCont);
+            })
+            .catch(error => console.error('There has been a problem with your fetch operation:', error));
+        }
+    })
+    .catch(error => console.error('There has been a problem with your fetch operation:', error));
 }
 
 window.addEventListener('DOMContentLoaded', event => {
 
-    getGetVars();
+    callBackAccess();
 
     // Obtener referencia al formulario y al botón
     var formulario = document.getElementById("contactForm");
