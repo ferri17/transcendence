@@ -1,8 +1,6 @@
 
-function test() {
-    console.log("HIHIHIHIHI");
-}
 UID = "u-s4t2ud-c9372edee74345442b4a74d561037186bc6cc251b40413f8291d92e5ee4257b1"
+
 async function post42(url, payload) {
     url = "https://api.intra.42.fr" + url;
     const response = await fetch(url, {
@@ -82,17 +80,30 @@ function getPathVars() {
     }
 }
 
-function callBackAccess() {
-    let vars = getPathVars();0
-    console.log("CODE: " + vars["code"]);
-    console.log("STATE: " + vars["state"]);
-    fetch('http://localhost:8080/loginIntra/', {
-        method: 'POST',
+function genImg(data)
+{
+    if (!document.getElementById("img-circ"))
+    {
+        let img = data['image'];
+        let linkImg = img['link'];
+        console.log(linkImg);
+        var divimg = document.getElementById("img-logointra");
+        var imgCont = document.createElement('img');
+        imgCont.src = linkImg;
+        imgCont.alt = "Intra IMG";
+        imgCont.id = "img-circ";
+        divimg.appendChild(imgCont);    
+    }
+}
+
+async function fetchApiMe(access){
+    await fetch('https://api.intra.42.fr/v2/me', {
+        method: 'GET',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(getPathVars())
+            'Authorization': 'Bearer ' + access
+        }
     })
     .then(response => {
         if (!response.ok) {
@@ -101,75 +112,100 @@ function callBackAccess() {
         return response.json();
     })
     .then(data => {
-        console.log(data);
-        if (data["access_token"])
-        {
-            fetch('https://api.intra.42.fr/v2/me', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + data["access_token"]
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                let img = data['image'];
-                let linkImg = img['link'];
-                console.log(linkImg);
-                var divimg = document.getElementById("img-logointra");
-                var imgCont = document.createElement('img');
-                imgCont.src = linkImg;
-                imgCont.alt = "Intra IMG";
-                imgCont.height = 150;
-                imgCont.width = 150;
-                imgCont.className = "img-circ";
-                divimg.appendChild(imgCont);
-            })
-            .catch(error => console.error('There has been a problem with your fetch operation:', error));
-        }
+        genImg(data);
     })
     .catch(error => console.error('There has been a problem with your fetch operation:', error));
 }
 
+function getCookie(cname) {
+    let name = cname + "=";
+    let ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+}
+function checkAccessToke() {
+    let access = getCookie("access_token");
+    if (!access)
+        return (false)
+    fetchApiMe(getCookie("access_token"));
+    return (true);
+}
+
+function clearURL() {
+    const url = new URL(window.location.href);
+    url.search = '';
+    window.history.replaceState({}, document.title, url.toString());
+}
+
+function callBackAccess() {
+    if (checkAccessToke() == false)
+    {
+        let vars = getPathVars();
+        if (!vars["code"] || !vars["state"])
+            return ;
+        fetch('http://localhost:8080/loginIntra/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(getPathVars())
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            if (data["access_token"])
+            {
+                document.cookie = "access_token=" + data["access_token"] + "; expires=Thu, 18 Dec 2024 12:00:00 UTC; path=/; SameSite=None; Secure";
+                clearURL();
+                checkAccessToke();
+            }
+        })
+        .catch(error => console.error('There has been a problem with your fetch operation:', error));
+    }
+}
+
 window.addEventListener('DOMContentLoaded', event => {
+
+    const myVariable = process.env.MY_VARIABLE;
+    console.log('MY_VARIABLE:', myVariable);
 
     callBackAccess();
 
-    // Obtener referencia al formulario y al botón
     var formulario = document.getElementById("contactForm");
     var botonEnviar = document.getElementById("btn-testing");
 
     botonEnviar.disabled = true;
-    // Agregar un event listener para detectar cambios en el formulario
     if (formulario)
         formulario.addEventListener("input", validarCampos);
 
-    // Función para validar los campos y habilitar/deshabilitar el botón
     function validarCampos() {
         var camposLlenos = true;
 
-        // Recorrer todos los campos del formulario
         for (var i = 0; i < formulario.elements.length; i++) {
             var campo = formulario.elements[i];
 
-            // Verificar si el campo es un input y está vacío
             if (campo.tagName.toLowerCase() === "input" && campo.value.trim() === "") {
                 camposLlenos = false;
-                break; // Salir del bucle si se encuentra un campo vacío
+                break;
             }
         }
-
-        // Habilitar o deshabilitar el botón según los campos estén llenos o no
         botonEnviar.disabled = !camposLlenos;
     }
-    // Navbar shrink function
+
     var navbarShrink = function () {
         const navbarCollapsible = document.body.querySelector('#mainNav');
         if (!navbarCollapsible) {

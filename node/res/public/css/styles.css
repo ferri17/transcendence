@@ -10,7 +10,9 @@
  * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
-.img-circ{
+#img-circ{
+  height: 150px;
+  width: 150px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -10957,7 +10959,7 @@ header.masthead {
   padding-bottom: 6rem;
   text-align: center;
   color: #fff;
-  background-image: url("../assets/img/header-bg.jpg");
+  background-image: url("../assets/favicon.jpeg");
   background-repeat: no-repeat;
   background-attachment: scroll;
   background-position: center center;
