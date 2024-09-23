@@ -2,6 +2,7 @@ import Lottie from 'lottie-web';
 import { callApi42, is_authenticated, getCookie, expiresDate } from '../user_login';
 import i18next from 'i18next';
 import { router } from '../routes';
+import { createToast } from '../components/toast';
 
 class HomeOut extends HTMLElement {
 	constructor() {
@@ -55,16 +56,18 @@ class HomeOut extends HTMLElement {
 					method: "POST",
 					body: formData,
 				});
+				const tokens = await response.json();
 				if (response.ok) {
-					const tokens = await response.json();
 					document.cookie = `token=${tokens["access"]}; expires=${expiresDate(tokens["token_exp"]).toUTCString()}; Secure; SameSite=Strict`;
 					document.cookie = `refresh=${tokens["refresh"]}; expires=${expiresDate(tokens["refresh_exp"]).toUTCString()}; Secure; SameSite=Strict`;
+					createToast('successful','Logged in successfully');
 					router();
 				}
-				else
-					alert(`Unexpected error`);
+				else {
+					createToast('warning',`Error: ${tokens.error}`);
+				}
 			  } catch (e) {
-				alert(`Unexpected error:${e}`);
+				createToast('warning', `Error: ${e}`);
 			  }
 		});
 

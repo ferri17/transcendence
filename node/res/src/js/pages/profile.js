@@ -1,5 +1,6 @@
 import { callApi42, is_authenticated, getCookie } from '../user_login';
 import { router } from '/src/js/routes.js';
+import { createToast } from '../components/toast';
 
 class ProFile extends HTMLElement {
 	constructor() {
@@ -77,10 +78,9 @@ class ProFile extends HTMLElement {
 			const	dataUpdate = new FormData();
 			dataUpdate.append('alias', inputAlias.value);
 			dataUpdate.append('imagefile', inputProfilePic.files[0]);
-			console.log("hola:" + dataUpdate.get('imagefile'));
 			try {
-				const response = await fetch("http://localhost:8080/update_info_user/", {
-					method: "POST",
+				const response = await fetch('http://localhost:8080/update_info_user/', {
+					method: 'POST',
 					headers: {'Authorization': 'Bearer ' + getCookie('token')},
 					body: dataUpdate,
 				});
@@ -88,16 +88,10 @@ class ProFile extends HTMLElement {
 					const responseJson = await response.json();
 					throw new Error(`${responseJson.error}`);
 				}
+				createToast('successful','Profile updated successfully');
 				router();
 			} catch (e) {
-				const	currentAlert = document.querySelector('.alert-profile-update');
-				if (currentAlert) {
-					currentAlert.remove();
-				}
-				const alertMssg = document.createElement('p');
-				alertMssg.textContent = e.message;
-				alertMssg.classList.add('alert-message', 'alert-profile-update');
-				updateSubmitBtn.insertAdjacentElement('beforebegin', alertMssg);
+				createToast('warning',`Error: ${e.message}`);
 			}
 		});
 

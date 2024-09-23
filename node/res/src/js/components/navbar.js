@@ -76,7 +76,7 @@ class NavBar extends HTMLElement {
 		const	playBtn = document.getElementById('play-btn');
 		if (playBtn) {
 			playBtn.addEventListener('click', () => {
-				createToast('warning', 'heeeelp');
+				createToast('successful', 'Logged in successfully');
 			});
 		}
 
@@ -128,12 +128,15 @@ class NavBar extends HTMLElement {
 		/* If user is logged in, add event listener for optional elements of nav-bar*/
 		if (this.hasAttribute('data-authorized')) {
 			const	logoutBtn = document.getElementById('logout-btn');
-			logoutBtn.addEventListener('click', () => {
-				document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
-				document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
-				document.cookie = "refresh=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
-				router();
-			});
+			if (logoutBtn) {
+				logoutBtn.addEventListener('click', () => {
+					createToast('successful','Hope to see you back soon!');
+					document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
+					document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
+					document.cookie = "refresh=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
+					router();
+				});
+			}
 		}
 	}
 }
