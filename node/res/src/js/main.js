@@ -9,6 +9,7 @@ import '/src/js/languages';
 'use strict';
 
 const	app = document.getElementById('app');
+export const	toastNotifications = document.getElementById('toast-notifications');
 
 window.addEventListener('DOMContentLoaded', () => {
 	checkPreferedColoScheme();

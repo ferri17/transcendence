@@ -1,5 +1,6 @@
 import { router } from '../routes';
 import { updateLightMode } from '../main';
+import { createToast } from './toast';
 import { generateLangs } from '../languages';
 
 class NavBar extends HTMLElement {
@@ -9,7 +10,7 @@ class NavBar extends HTMLElement {
 		let	optionalElements = '';
 		if (this.hasAttribute('data-authorized')) {
 			optionalElements = /* html */`
-			<li><a href="/" class="nav-link" data-link>Play</a></li>
+			<li><a href="/" id="play-btn" class="nav-link" data-link>Play</a></li>
 			<li class="nav-item dropdown">
 				<a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profile</a>
 				<ul class="dropdown-menu dropdown-menu-end">
@@ -71,6 +72,14 @@ class NavBar extends HTMLElement {
 		setColorModeIcon();
 	}
 	connectedCallback() {
+
+		const	playBtn = document.getElementById('play-btn');
+		if (playBtn) {
+			playBtn.addEventListener('click', () => {
+				createToast('warning', 'heeeelp');
+			});
+		}
+
 		// generateLangs("navbar", this.hasAttribute('data-authorized'))
 		const	burgerButton = document.querySelector('.topnav__burger');
 		const	topnavMenu = document.querySelector('.topnav__menu');

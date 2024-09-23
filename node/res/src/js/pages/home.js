@@ -126,8 +126,6 @@ class HomeAuthorized extends HTMLElement {
 					<h1>Hi, ${data.alias}</h1>
 					<h2>Hi, ${data.username}</h2>
 					<div class="profile-link"></div>
-				</div>
-
 			`;
 			})
 			.catch(error => {
