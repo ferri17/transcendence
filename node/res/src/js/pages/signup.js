@@ -103,7 +103,7 @@ class Signup extends HTMLElement {
 						}
 						document.getElementById('signup-submit-btn').disabled = !signupForm.checkValidity();
 					} else {
-						createToast('warning', `Error: ${responseJson.error}`);
+						throw new Error(`${responseJson.error}`);
 					}
 				} catch (e) {
 					createToast('warning', `Error: ${e}`);
@@ -187,7 +187,7 @@ class Signup extends HTMLElement {
 				}
 				else {
 					const	responseJson = await response.json();
-					createToast('warning', `Error: ${responseJson.error}`);
+					throw new Error(`${responseJson.error}`);
 				}
 			  } catch (e) {
 				createToast('warning', `Error: ${e}`);

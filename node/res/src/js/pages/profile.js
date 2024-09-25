@@ -1,6 +1,9 @@
 import { callApi42, is_authenticated, getCookie } from '../user_login';
 import { router } from '/src/js/routes.js';
 import { createToast } from '../components/toast';
+import { updateUserInfo } from '../main';
+
+const	TWO_MEGABYTES = 2*1024*1024;
 
 class ProFile extends HTMLElement {
 	constructor() {
@@ -62,12 +65,18 @@ class ProFile extends HTMLElement {
 		inputProfilePic.addEventListener('change', function(event) {
 			const file = event.target.files[0];
 			if (file) {
-				const reader = new FileReader();
-				reader.onload = (e) => {
-					// Set the new image source to the profile picture
-					profilePic.style.backgroundImage = `url('${e.target.result}'`;
-				};
-				reader.readAsDataURL(file); // Convert the file to a data URL
+				if (file.size <= TWO_MEGABYTES) {
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						// Set the new image source to the profile picture
+						profilePic.style.backgroundImage = `url('${e.target.result}'`;
+					};
+					reader.readAsDataURL(file); // Convert the file to a data URL
+				}
+				else {
+					inputProfilePic.value = '';
+					createToast('warning', 'File size too big');
+				}
 			}
 		});
 
@@ -89,6 +98,7 @@ class ProFile extends HTMLElement {
 					throw new Error(`${responseJson.error}`);
 				}
 				createToast('successful','Profile updated successfully');
+				updateUserInfo();
 				router();
 			} catch (e) {
 				createToast('warning',`Error: ${e.message}`);
