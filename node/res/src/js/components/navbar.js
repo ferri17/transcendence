@@ -72,14 +72,6 @@ class NavBar extends HTMLElement {
 		setColorModeIcon();
 	}
 	connectedCallback() {
-
-		const	playBtn = document.getElementById('play-btn');
-		if (playBtn) {
-			playBtn.addEventListener('click', () => {
-				createToast('successful', 'Logged in successfully');
-			});
-		}
-
 		// generateLangs("navbar", this.hasAttribute('data-authorized'))
 		const	burgerButton = document.querySelector('.topnav__burger');
 		const	topnavMenu = document.querySelector('.topnav__menu');

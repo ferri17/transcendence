@@ -82,7 +82,9 @@ class HomeAuthorized extends HTMLElement {
 		super();
 	}
 	async connectedCallback() {
-		await updateUserInfo();
+		if (!localStorage.getItem('username')) {
+			await updateUserInfo();
+		}
 
 		this.innerHTML = /* html */`
 				<style>

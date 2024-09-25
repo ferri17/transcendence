@@ -43,10 +43,9 @@ window.addEventListener('DOMContentLoaded', () => {
 /* Handle navigation */
 window.addEventListener('click', e => {
 	if (e.target.matches('[data-link]')) {
-		const	oldCssRoute = routes[window.location.pathname].css;
 		e.preventDefault();
 		history.pushState('', '', e.target.href);
-		router(oldCssRoute);
+		router();
 	}
 });
 
@@ -97,7 +96,8 @@ function routeSearch(path){
 export async function	router() {
 	app.innerHTML = loading();
 	setTimeout(async () => {
-		const isAuth =  await is_authenticated(getCookie("token"));
+		const isAuth =  await is_authenticated(getCookie('token'));
+		console.log(isAuth);
 		const windowPathname = window.location.pathname;
 		let view = routes[windowPathname];
 		//updateActiveElementNavbar();
@@ -107,6 +107,7 @@ export async function	router() {
 				app.innerHTML = view.render();
 			}
 			else {
+				history.pushState('', '', '/');
 				app.innerHTML = '<home-out></home-out>';
 			}
 			
