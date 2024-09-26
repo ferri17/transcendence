@@ -5,6 +5,7 @@ import tournamentRoom from './tournament/tournamentRoom.js';
 import tournament from './tournament/tournament.js';
 import home from './pages/home.js';
 import profile from './pages/profile.js';
+import friends from './pages/friends.js';
 import loading from './pages/loading.js';
 import signup from './pages/signup.js';
 import matchHistory from './pages/match_history.js';
@@ -17,6 +18,7 @@ import { is_authenticated, getCookie } from './user_login.js';
 const routes = {
 	'/': { title: 'Home', render: home, auth: true},
 	'/profile': { title: 'Profile', render: profile, auth: true},
+	'/friends': { title: 'Friends', render: friends, auth: true},
 	'/signup': { title: 'Signup', render: signup, auth: false},
 	'/gamebot': { title: 'You will lose', render: gameai, auth: true},
 	'/waitroom': { title: 'HAVE FUN', render: waitroom, auth: true},
@@ -79,7 +81,7 @@ function routeSearch(path){
             const staticpart = key.split(":id")[0];
             if (path.startsWith(staticpart)){
                 const id = path.slice(staticpart.length);
-                if (id){
+                if (id) {
                     param = { id };
                 }
                 route = routes[key];
@@ -97,7 +99,6 @@ export async function	router() {
 	app.innerHTML = loading();
 	setTimeout(async () => {
 		const isAuth =  await is_authenticated(getCookie('token'));
-		console.log(isAuth);
 		const windowPathname = window.location.pathname;
 		let view = routes[windowPathname];
 		//updateActiveElementNavbar();

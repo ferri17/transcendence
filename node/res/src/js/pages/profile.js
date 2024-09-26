@@ -95,7 +95,7 @@ class ProFile extends HTMLElement {
 				});
 				if (!response.ok) {
 					const responseJson = await response.json();
-					throw new Error(`${responseJson.error}`);
+					throw (`${responseJson.error}`);
 				}
 				createToast('successful','Profile updated successfully');
 				updateUserInfo();

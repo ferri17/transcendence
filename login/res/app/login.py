@@ -125,6 +125,7 @@ def loginIntra(request):
 
 @api_view(['POST'])
 def refreshToken(request):
+    logger.info('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW')
     body = json.loads(request.body.decode('utf-8'))
     if (not body.get('refresh_token')):
         return JsonResponse({'error': 'Missing refresh token'}, status=400)
@@ -226,7 +227,7 @@ def loginWeb(request):
                 'id': user.id
             })
         else:
-            return JsonResponse({'error': 'Invalid credentials'})
+            return JsonResponse({'error': 'Invalid credentials'}, status=409)
     except Exception as e:
         logger.info(str(e))
         return JsonResponse({'error': str(e)}, status=400)

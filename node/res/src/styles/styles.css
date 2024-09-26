@@ -399,6 +399,10 @@ svg.light-mode-switch:hover {
 	color: var(--bs-cs-secondary-hover);
 }
 
+.justify-self-end {
+	justify-content: end;
+}
+
 .password-checklist {
 	position: absolute;
 	top: calc(100% + 10px);

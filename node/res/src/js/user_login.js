@@ -148,7 +148,6 @@ async function refresh_token(refresh)
 function callBackAccess() {
 	if (!getCookie('token'))
 	{
-		// console.log(getCookie('refresh'))
 		const refresh = getCookie('refresh');
 		if (refresh)
 			refresh_token(refresh);
@@ -190,8 +189,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 export async function is_authenticated(access)
 {
-	if (!access)
+	if (!access) {
 		return Promise.resolve(false);
+	}
 	return fetch('http://localhost:8080/verify_token/', {
 		method: 'GET',
 		headers: {

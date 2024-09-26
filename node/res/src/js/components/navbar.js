@@ -15,6 +15,7 @@ class NavBar extends HTMLElement {
 				<a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profile</a>
 				<ul class="dropdown-menu dropdown-menu-end">
 					<li><a class="dropdown-item" href="/profile" data-link><i class="fa-regular fa-user fa-lg"></i>Profile</a></li>
+					<li><a class="dropdown-item" href="/friends" data-link><i class="fa-regular fa-face-laugh-wink fa-lg"></i>Friends</a></li>
 					<li><a class="dropdown-item" href="/match-history" data-link><i class="fa-regular fa-chart-bar fa-lg"></i>Match history</a></li>
 					<li><a id="logout-btn" class="dropdown-item" href="" data-link><i class="fa-solid fa-arrow-right-from-bracket fa-lg"></i>Log out</a></li>
 				</ul>
@@ -126,6 +127,12 @@ class NavBar extends HTMLElement {
 					document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
 					document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
 					document.cookie = "refresh=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
+					localStorage.removeItem('username');
+					localStorage.removeItem('alias');
+					localStorage.removeItem('name');
+					localStorage.removeItem('lastname');
+					localStorage.removeItem('campus');
+					localStorage.removeItem('img');
 					router();
 				});
 			}

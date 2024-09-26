@@ -59,7 +59,7 @@ class HomeOut extends HTMLElement {
 				});
 				const tokens = await response.json();
 				if (!response.ok) {
-					throw new Error(`${tokens.error}`);
+					throw (`${tokens.error}`);
 				}
 				document.cookie = `token=${tokens['access']}; expires=${expiresDate(tokens['token_exp']).toUTCString()}; Secure; SameSite=Strict`;
 				document.cookie = `refresh=${tokens['refresh']}; expires=${expiresDate(tokens['refresh_exp']).toUTCString()}; Secure; SameSite=Strict`;
@@ -82,10 +82,7 @@ class HomeAuthorized extends HTMLElement {
 		super();
 	}
 	async connectedCallback() {
-		if (!localStorage.getItem('username')) {
-			await updateUserInfo();
-		}
-
+		await updateUserInfo();
 		this.innerHTML = /* html */`
 				<style>
 					.div-test {

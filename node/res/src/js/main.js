@@ -13,6 +13,8 @@ import { getCookie } from './user_login';
 
 const	app = document.getElementById('app');
 export const	toastNotifications = document.getElementById('toast-notifications');
+export const	navigationCs = document.getElementById('navigation-cs');
+
 
 window.addEventListener('DOMContentLoaded', () => {
 	checkPreferedColoScheme();
@@ -106,7 +108,7 @@ export async function	updateUserInfo() {
 		});
 		const	userInfo = await response.json();
 		if (!response.ok) {
-			throw new Error(`${userInfo.error}`);
+			throw (`${userInfo.error}`);
 		}
 		localStorage.setItem('username', userInfo.username);
 		localStorage.setItem('name', userInfo.name);
