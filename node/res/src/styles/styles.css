@@ -11,6 +11,7 @@
 	--red-subtle-hover: #251d1d;
 	--green-subtle: #293626;
 	--green-subtle-hover: #242a23;
+	--blue-subtle: rgba(90, 202, 230, 0.2);
 }
 
 [data-bs-theme="light"] {
@@ -25,12 +26,49 @@
 	--red-subtle-hover: #fde7e7;
 	--green-subtle: #daedd9;
 	--green-subtle-hover: #ebf5eb;
+	--blue-subtle: rgba(89, 213, 244, 0.2);
 	.password-checklist {
 		filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2));
 	}
 	.toast {
 		box-shadow: 0 0 1rem rgba(0, 0, 0, 0.15);
 	}
+}
+
+.primary-color {
+	color: var(--bs-cs-primary);
+}
+
+.secondary-color {
+	color: var(--bs-cs-secondary);
+}
+
+.primary-color-subtle {
+	color: var(--bs-cs-primary-subtle);
+}
+
+.secondary-color-subtle {
+	color: var(--bs-cs-secondary-subtle);
+}
+
+.primary-bg-color {
+	background-color: var(--bs-cs-primary);
+}
+
+.secondary-bg-color {
+	background-color: var(--bs-cs-secondary);
+}
+
+.primary-bg-color-subtle {
+	background-color: var(--bs-cs-primary-subtle);
+}
+
+.secondary-bg-color-subtle {
+	background-color: var(--bs-cs-secondary-subtle);
+}
+
+.cs-border {
+	border: 1px solid var(--bs-cs-primary-subtle);
 }
 
 input {
@@ -506,26 +544,20 @@ svg.light-mode-switch:hover {
 	box-shadow: 0 0 1rem rgba(255, 255, 255, 0.25);
 }
 
-.toast-header {
-	p {
-		margin: 0;
-		color: var(--bs-blacky);
-	}
+.toast-header p {
+	margin: 0;
+	color: var(--bs-blacky);
 	background-color: var(--bs-cream);
 }
 
-.toast-warning {
-	.toast-header {
+.toast-warning .toast-header {
 		color: var(--bs-danger);
 		border-radius: calc(var(--bs-toast-border-radius) - var(--bs-toast-border-width));
-	}
 }
 
-.toast-successful {
-	.toast-header {
+.toast-successful .toast-header {
 		color: var(--bs-success);
 		border-radius: calc(var(--bs-toast-border-radius) - var(--bs-toast-border-width));
-	}
 }
 
 #username-spinner {
@@ -533,6 +565,57 @@ svg.light-mode-switch:hover {
 	height: 30px;
 	top: 8px;
 	right: 8px;
+}
+
+.user-status-pill {
+	border-radius: 5000px;
+	width: 30px;
+	height: 30px;
+	background-image: url('/src/assets/profile_chicken.jpg');
+	background-size: cover;
+	background-position: center; 
+	background-repeat: no-repeat; 
+}
+
+.user-status-pill.online {
+	border: 1px solid var(--bs-success);
+}
+
+.user-status-pill.offline {
+	border: 1px solid var(--bs-danger);
+}
+
+.delete-friend {
+	transition: transform 0.15s ease;
+}
+
+.delete-friend:hover {
+	cursor: pointer;
+	transform: scale(1.1);
+}
+
+.friend-item-add {
+	min-height: 50px;
+	background-color: var(--blue-subtle);
+}
+
+.friend-item {
+	min-height: 50px;
+	transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.friend-item:hover {
+	transform: translateX(5px);
+	background-color: var(--red-subtle);
+}
+
+.friend-accept-reject {
+	transition: transform 0.15s ease;
+}
+
+.friend-accept-reject:hover {
+	transform: scale(1.25);
+	cursor: pointer;
 }
 
 @media (width < 992px) {
