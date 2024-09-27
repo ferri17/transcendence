@@ -80,7 +80,6 @@ def insertLogin(tokken):
                         intra=True, first_name=body.get('first_name'), last_name=body.get('last_name'),
                         campus=body.get('campus')[0].get('name'))
             value = download_and_save_image(user, body.get('image').get('link'))
-
             if value["status"] == 'error':
                 return AnonymousUser()
             user.save()
@@ -112,6 +111,9 @@ def loginIntra(request):
         if (user == AnonymousUser):
             return({'error': 'Error with insert Login'}, 400)
         refresh = RefreshToken.for_user(user)
+        logger.info(refresh["exp"])
+        logger.info(refresh.access_token["exp"])
+        logger.info(datetime.now().timestamp())
         formatResponse = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
@@ -125,7 +127,6 @@ def loginIntra(request):
 
 @api_view(['POST'])
 def refreshToken(request):
-    logger.info('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW')
     body = json.loads(request.body.decode('utf-8'))
     if (not body.get('refresh_token')):
         return JsonResponse({'error': 'Missing refresh token'}, status=400)
@@ -158,6 +159,7 @@ def refreshToken(request):
             'token_exp': str(respjson.get('expires_in')),
         }
         return JsonResponse(formatResponse)
+    return JsonResponse({'error': 'Missing acces_token in api 42'}, status=400)
 
 def checkArgs(name, first, last, pswd, reppswd):
     if not name or not first or not last or not pswd or not reppswd:
@@ -184,13 +186,15 @@ def signUp(request):
         exist = Users.objects.filter(username=username).exists()
         response = {'response': 'POST'}
         if exist:
-            response["exist"] = True
+            response["error"] = "User Alredy exist"
             return JsonResponse(response, status=400)
         else:
             user = Users(campus="Campus of life", username=username, alias=username,
                          first_name=first, last_name=last, intra=False)
             user.set_password(pswd)
             user.save()
+            userStatus = UserStatus(users=user, is_online=False)
+            userStatus.save()
             animal = random.choice(["penguin.jpeg", "cat.jpeg", "chicken.jpeg"])
             random_mesh = img_name_gen()
             imgcontentpath = f"{str(Path(__file__).resolve().parent.parent)}/media/def/{animal}"
@@ -209,13 +213,13 @@ def signUp(request):
 @api_view(['POST'])
 def loginWeb(request):
     try:
-        # body = json.loads(request.body.decode('utf-8'))
         username = request.POST['username']
         password = request.POST['password']
 
         if not username or not password:
             return JsonResponse({'error': 'Missing arguments'}, status=400)
-
+        logger.info(username)
+        logger.info(password)
         user = authenticate(username=username, password=password)
         if user is not None:
             refresh = RefreshToken.for_user(user)

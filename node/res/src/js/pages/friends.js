@@ -14,7 +14,15 @@ class Friends extends HTMLElement {
 						<h1 class="text-center">Friends</h1>
 						<p class="text-center">Add, remove, and see your friends status.</p>
 					</div>
-					<ul class="mb-3">
+					<form id="add-user-form">
+						<div class="mb-3 d-flex justify-content-between gap-3">
+							<div class="flex-grow-1">
+								<input type="text" class="form-control" id="add-username" name="username" aria-describedby="nameHelp" placeholder="Username" minlength="2" maxlength="16" required>
+							</div>
+							<button type="submit" id="add-user-btn" class="btn btn-outline-cream-fill btn-general mb-3">Add friend</button>
+						</div>
+					</form>
+					<ul class="p-0">
 						<li class="friend-item-add px-4 rounded cs-border d-flex justify-content-between align-items-center mb-3">
 							<div class="d-flex align-items-center gap-3">
 								<span class="user-status-pill"></span>
@@ -42,20 +50,34 @@ class Friends extends HTMLElement {
 							<i class="fa-regular fa-trash-can fa-lg delete-friend pe-auto"></i>
 						</li>
 					</ul>
-					<form id="signup-form" class="mt-5 login-form">
-						<div class="mb-3 d-flex justify-content-between gap-3">
-							<div class="flex-grow-1">
-								<input type="text" class="form-control" id="input-name" name="username" aria-describedby="nameHelp" placeholder="Username" minlength="2" maxlength="16" required>
-							</div>
-							<button type="submit" id="signup-submit-btn" class="btn btn-outline-cream-fill btn-general mb-3">Add friend</button>
-						</div>
-					</form>
 				</div>
 			</main>
 		`;
 	}
 	connectedCallback() {
-
+		const	addUserForm = document.getElementById('add-user-form');
+		addUserForm.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const formData = new FormData(addUserForm);
+			try {
+				const response = await fetch('http://localhost:8080/add_friend/', {
+					method: 'POST',
+					headers: {'Authorization': 'Bearer ' + getCookie('token')},
+					body: formData,
+				});
+				if (response.ok) {
+					createToast('successful', `Added ${formData.get('username')} to your friends`);
+				}
+				else {
+					const responseJson = await response.json();
+					console.log(responseJson)
+					throw new Error(`${responseJson.error}`);
+				}
+			}
+			catch (e) {
+				createToast('warning', `Error: ${e}`);
+			}
+		});
 	};
         
 	
