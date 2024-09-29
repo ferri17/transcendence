@@ -6,7 +6,7 @@ class Signup extends HTMLElement {
 		this.innerHTML = /* html */`
 			<nav-bar></nav-bar>
 			<main class="container">
-				<form id="signup-form" class="col-sm-12 col-md-8 col-lg-6 mt-5 login-form">
+				<form id="signup-form" class="col-sm-12 col-md-8 col-lg-6 mt-5 login-form" autocapitalize="on">
 					<div class="mb-5">
 						<h1 class="text-center">Sign up</h1>
 						<p class="text-center">Please enter your details to register.</p>

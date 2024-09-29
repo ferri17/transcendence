@@ -22,7 +22,7 @@ class Friends extends HTMLElement {
 							<button type="submit" id="add-user-btn" class="btn btn-outline-cream-fill btn-general mb-3">Add friend</button>
 						</div>
 					</form>
-					<ul class="p-0">
+					<ul class="p-0 request-list">
 						<li class="friend-item-add px-4 rounded cs-border d-flex justify-content-between align-items-center mb-3">
 							<div class="d-flex align-items-center gap-3">
 								<span class="user-status-pill"></span>
@@ -33,6 +33,8 @@ class Friends extends HTMLElement {
 								<i class="fa-solid fa-xmark fa-lg text-danger friend-accept-reject"></i>
 							</div>
 						</li>
+					</ul>
+					<ul class="p-0 friend-list">
 						<li class="friend-item pe-none px-4 rounded cs-border d-flex justify-content-between align-items-center mb-3">
 							<div class="d-flex align-items-center gap-3">
 								<span class="user-status-pill online"></span>
@@ -54,7 +56,10 @@ class Friends extends HTMLElement {
 			</main>
 		`;
 	}
-	connectedCallback() {
+	async connectedCallback() {
+		await loadRequests();
+		await loadFriendList();
+
 		const	addUserForm = document.getElementById('add-user-form');
 		addUserForm.addEventListener('submit', async (e) => {
 			e.preventDefault();
@@ -66,12 +71,13 @@ class Friends extends HTMLElement {
 					body: formData,
 				});
 				if (response.ok) {
-					createToast('successful', `Added ${formData.get('username')} to your friends`);
+					createToast('successful', `Friend request sent to ${formData.get('username')}`);
+					addUserForm.reset();
 				}
 				else {
 					const responseJson = await response.json();
-					console.log(responseJson)
-					throw new Error(`${responseJson.error}`);
+					console.log(responseJson);
+					throw (`${responseJson.error}`);
 				}
 			}
 			catch (e) {
@@ -79,8 +85,76 @@ class Friends extends HTMLElement {
 			}
 		});
 	};
-        
-	
+}
+
+async function	loadRequests() {
+	const	requestList = document.querySelector('.request-list');
+	try {
+		const response = await fetch('http://localhost:8080/list_pending/', {
+			method: 'POST',
+			headers: {'Authorization': 'Bearer ' + getCookie('token')},
+		});
+		const responseJson = await response.json();
+		console.log(responseJson);
+		if (response.ok) {
+			const requestListHtml = responseJson.friends.map((friend) => {
+				return(`
+					<li class="friend-item-add px-4 rounded cs-border d-flex justify-content-between align-items-center mb-3">
+						<div class="d-flex align-items-center gap-3">
+							<span class="user-status-pill"></span>
+							<p class="mx-0 my-0 px-0 py-0 fs-6 align-bottom secondary-color-subtle">${friend.alias} (${friend.username}) wants to add you as a friend.</p>
+						</div>
+						<div class="d-flex gap-2">
+							<i class="fa-solid fa-check fa-lg text-success friend-accept-reject"></i>
+							<i class="fa-solid fa-xmark fa-lg text-danger friend-accept-reject"></i>
+						</div>
+					</li>
+				`);
+			}).join('');
+			requestList.innerHTML = requestListHtml;
+			createToast('successful', 'get friend requests');
+		}
+		else {
+			throw (`${responseJson.error}`);
+		}
+	}
+	catch (e) {
+		createToast('warning', `Error: ${e}`);
+	}
+}
+
+async function	loadFriendList() {
+	const	friendList = document.querySelector('.friend-list');
+	try {
+		const response = await fetch('http://localhost:8080/list_friends/', {
+			method: 'POST',
+			headers: {'Authorization': 'Bearer ' + getCookie('token')},
+		});
+		const responseJson = await response.json();
+		console.log(responseJson);
+		if (response.ok) {
+			const friendListHtml = responseJson.friends.map((friend) => {
+				return(`
+					<li class="friend-item pe-none px-4 rounded cs-border d-flex justify-content-between align-items-center mb-3">
+						<div class="d-flex align-items-center gap-3">
+							<span class="user-status-pill online" style="background-image: url('${friend.img}');"></span>
+							<p class="mx-0 my-0 px-0 py-0 fs-5 align-bottom">@${friend.alias}</p>
+							<p class="mx-0 my-0 px-0 py-0 fs-6 align-bottom secondary-color-subtle">${friend.first_name } ${friend.last_name}</p>
+						</div>
+						<i class="fa-regular fa-trash-can fa-lg delete-friend pe-auto"></i>
+					</li>	
+				`);
+			}).join('');
+			friendList.innerHTML = friendListHtml;
+			createToast('successful', 'get friend list');
+		}
+		else {
+			throw (`${responseJson.error}`);
+		}
+	}
+	catch (e) {
+		createToast('warning', `Error: ${e}`);
+	}
 }
 
 customElements.define('my-friends', Friends);
