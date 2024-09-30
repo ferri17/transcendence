@@ -1,15 +1,23 @@
 
 FROM node:22
 
-WORKDIR /home/apriego-/node
+WORKDIR /home/dtome-pe/node
 
 COPY res/package*.json ./
-
-# Instala las dependencias de la aplicación
-# RUN npm install
-
+COPY res/entrypoint.sh ./
 COPY . .
 
-EXPOSE 3000
+# Instala las dependencias de la aplicación
+RUN npm install
 
-CMD ["npm", "run", "dev"]
+RUN apt-get update && apt-get install -y nginx
+RUN mkdir /etc/nginx/ssl/
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/ssl/key.pem /etc/nginx/ssl/key.pem
+COPY nginx/ssl/cert.pem /etc/nginx/ssl/cert.pem
+
+RUN chmod +x ./entrypoint.sh
+
+EXPOSE 8000
+
+ENTRYPOINT ["./entrypoint.sh"]
