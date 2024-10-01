@@ -1,5 +1,6 @@
 #!/bin/bash
 
-npm run dev &
+
+npm run build &
 
 nginx -g "daemon off;"

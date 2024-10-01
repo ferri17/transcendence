@@ -103,7 +103,7 @@ export function disconnectWB() {
 export async function callApi42(){
     const params = new URLSearchParams ({
         "client_id": uid,
-        "redirect_uri": "http://localhost:3000/",
+        "redirect_uri": "https://localhost:3001/",
         "scope": "public",
         "state": "1234566i754twrqwdfghgfddtrwsewrt",
         "response_type": "code"

@@ -5,7 +5,9 @@ WORKDIR /home/dtome-pe/node
 
 COPY res/package*.json ./
 COPY res/entrypoint.sh ./
+COPY res/vite.config.js ./
 COPY . .
+
 
 # Instala las dependencias de la aplicación
 RUN npm install
@@ -18,6 +20,7 @@ COPY nginx/ssl/cert.pem /etc/nginx/ssl/cert.pem
 
 RUN chmod +x ./entrypoint.sh
 
-EXPOSE 8000
+EXPOSE 3001
 
+#CMD ["nginx", "-g", "daemon off;"]
 ENTRYPOINT ["./entrypoint.sh"]
