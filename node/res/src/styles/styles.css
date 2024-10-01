@@ -594,7 +594,7 @@ svg.light-mode-switch:hover {
 	transform: scale(1.1);
 }
 
-.friend-item-add {
+.friend-request-item {
 	min-height: 50px;
 	background-color: var(--blue-subtle);
 }

@@ -107,6 +107,10 @@ export async function	router() {
 				document.title = `TS | ${view.title}`;
 				app.innerHTML = view.render();
 			}
+			else if (isAuth  && !view.auth) {
+				history.pushState('', '', '/');
+				app.innerHTML = '<home-authorized></home-authorized>';
+			}
 			else {
 				history.pushState('', '', '/');
 				app.innerHTML = '<home-out></home-out>';

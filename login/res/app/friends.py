@@ -92,7 +92,7 @@ def add_friend(request):
             newFriend.save()
             return JsonResponse(response)
         else:
-                return JsonResponse({'error': 'Dont exist username'}, status=400)
+                return JsonResponse({'error': 'Username doesn\'t exist'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -100,7 +100,7 @@ def add_friend(request):
 def confirm_friends(request):
     try:
         body = json.loads(request.body.decode('utf-8'))
-        username = body.get('name')
+        username = body.get('username')
         fromuser = request.user
         if not fromuser or fromuser == AnonymousUser() or not username:
             return JsonResponse({'error': 'Missing Access Token'}, status=400)
@@ -120,7 +120,7 @@ def confirm_friends(request):
 def delete_friend(request):
     try:
         body = json.loads(request.body.decode('utf-8'))
-        username = body.get('name')
+        username = body.get('username')
         fromuser = request.user
         if not fromuser or fromuser == AnonymousUser() or not username:
             return JsonResponse({'error': 'Missing Access Token'}, status=400)
@@ -136,5 +136,25 @@ def delete_friend(request):
                 return JsonResponse({'success': 'Deleted a friend YOU ARE A BAD PERSON:('})
             else:
                 return JsonResponse({'error': 'No Friends to delete :('}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@api_view(['POST'])
+def delete_pending(request):
+    try:
+        body = json.loads(request.body.decode('utf-8'))
+        username = body.get('username')
+        fromuser = request.user
+        if not fromuser or fromuser == AnonymousUser() or not username:
+            return JsonResponse({'error': 'Missing Access Token'}, status=400)
+        if Users.objects.filter(username=username).exists():
+            user = Users.objects.get(username=username)
+            if (Friends.objects.filter((Q(usersid1=user) & Q(usersid2=fromuser) & Q(pending=True))).exists()):
+                friend = Friends.objects.get(usersid1=user, usersid2=fromuser, pending=True)
+                friend.delete()
+                return JsonResponse({'success': 'Delete pending request'})
+            else:
+                return JsonResponse({'error': 'Not pending request'}, status=400)
+        return JsonResponse({'error': 'Not pending request'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
