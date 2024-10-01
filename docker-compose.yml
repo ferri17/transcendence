@@ -12,6 +12,8 @@ services:
       - "3001:3001"
     networks:
       - pongnet
+    depends_on:
+      - login
   login:
     container_name: login
     build: ./login

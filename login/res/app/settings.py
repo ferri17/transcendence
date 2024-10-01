@@ -45,7 +45,7 @@ LOGGING = {
     },
 }
 
-ALLOWED_HOSTS = ['django', 'login', 'localhost', 'http://localhost:3000']
+ALLOWED_HOSTS = ['django', 'login', 'localhost', 'https://localhost:3001']
 
 
 # Application definition
