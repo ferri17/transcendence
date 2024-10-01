@@ -80,17 +80,17 @@ async function joinModale(){
     const modalContainer = document.createElement('div');
     modalContainer.innerHTML = /* html */`
     <div class="modal fade" id="TournModal" tabindex="-1" aria-labelledby="TournModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="TournModalLabel">Select a Tournament</h5>
-      </div>
-      <div class="modal-body">
-      <ul class="list-group" id="roomList">
-      ${allTour.map(room => `<li class="list-group-item room-item" data-room-id="${room.id}">ROOM : ${room.id} - with ${room.n_registered}/${room.size} registered</li>`).join('')}
-      </ul>
-    </div>
-    <div class="modal-footer">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="TournModalLabel">Select a Tournament</h5>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group" id="roomList">
+              ${allTour.map(room => `<li class="list-group-item room-item" data-room-id="${room.id}">ROOM : ${room.id} - with ${room.n_registered}/${room.size} registered</li>`).join('')}
+            </ul>
+          </div>
+          <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" id="modalSubmitButton">Submit</button>
           </div>
@@ -219,7 +219,7 @@ async function createModale(){
             console.log('Tournament created successfully:', resp);
         }
         catch(error){
-            console.log(resp);
+            console.log(error);
         }
     })
 
