@@ -4,12 +4,12 @@ services:
     build: ./node
     image: node
     volumes:
-      - ./node/res:/home/apriego-/node
-      - node_data:/home/apriego-/node/res/node_modules
+      - ./node/res:/home/dtome-pe/node
+      - node_data:/home/dtome-pe/node/res/node_modules
     env_file:
       - .env
     ports:
-      - "3000:3000"
+      - "3001:3001"
     networks:
       - pongnet
   login:
@@ -17,7 +17,7 @@ services:
     build: ./login
     image: login
     volumes:
-      - login_data:/home/apriego-/login/
+      - login_data:/home/dtome-pe/login/
     env_file:
       - .env
     ports:
@@ -86,7 +86,7 @@ services:
     env_file:
       - .env
     volumes:
-      - postgres_data:/home/apriego-/postgres
+      - postgres_data:/home/dtome-pe/postgres
     ports:
       - "5432:5432"
     networks:

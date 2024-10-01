@@ -6,6 +6,7 @@ WORKDIR /home/dtome-pe/node
 COPY res/package*.json ./
 COPY res/entrypoint.sh ./
 COPY res/vite.config.js ./
+COPY res/index.html ./
 COPY . .
 
 
