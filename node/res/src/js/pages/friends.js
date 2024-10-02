@@ -22,12 +22,8 @@ class Friends extends HTMLElement {
 							<button type="submit" id="add-user-btn" class="btn btn-outline-cream-fill btn-general mb-3">Add friend</button>
 						</div>
 					</form>
-					<ul class="p-0 request-list">
-						
-					</ul>
-					<ul class="p-0 friend-list">
-						
-					</ul>
+					<ul class="p-3 m-0 request-list"></ul>
+					<ul class="p-3 m-0 border-top friend-list"></ul>
 				</div>
 			</main>
 		`;
@@ -38,6 +34,7 @@ class Friends extends HTMLElement {
 		setListenerFriends();
 
 		const	addUserForm = document.getElementById('add-user-form');
+		const	addUsername = document.getElementById('add-username');
 		addUserForm.addEventListener('submit', async (e) => {
 			e.preventDefault();
 			const formData = new FormData(addUserForm);
@@ -49,10 +46,13 @@ class Friends extends HTMLElement {
 				});
 				if (response.ok) {
 					createToast('successful', `Friend request sent to @${formData.get('username')}`);
-					addUserForm.reset();
+					router();
 				}
 				else {
 					const responseJson = await response.json();
+					if (addUsername) {
+						addUsername.value = '';
+					}
 					console.log(responseJson);
 					throw (`${responseJson.error}`);
 				}
@@ -74,20 +74,27 @@ async function	loadRequests() {
 		const responseJson = await response.json();
 		console.log(responseJson);
 		if (response.ok) {
-			const requestListHtml = responseJson.friends.map((friend) => {
-				return(`
-					<li class="friend-request-item px-4 rounded cs-border d-flex justify-content-between align-items-center mb-3" data-friend-username="${friend.username}">
-						<div class="d-flex align-items-center gap-3">
-							<span class="user-status-pill"></span>
-							<p class="mx-0 my-0 px-0 py-0 fs-6 align-bottom secondary-color-subtle">${friend.alias} (@${friend.username}) wants to add you as a friend.</p>
-						</div>
-						<div class="d-flex gap-2">
-							<i class="fa-solid fa-check fa-lg text-success friend-accept-reject friend-accept"></i>
-							<i class="fa-solid fa-xmark fa-lg text-danger friend-accept-reject friend-reject"></i>
-						</div>
-					</li>
-				`);
-			}).join('');
+			let requestListHtml;
+			if (responseJson.friends.length < 1) {
+				requestListHtml = /* html */ `
+					<p class="fs-4 m-0 p-0 secondary-color-subtle">No pending friend requests</p>`;
+			}
+			else {
+				requestListHtml = responseJson.friends.map((friend) => {
+					return(/* html */`
+						<li class="friend-request-item px-4 rounded cs-border d-flex justify-content-between align-items-center mb-2" data-friend-username="${friend.username}">
+							<div class="d-flex align-items-center gap-3">
+								<span class="user-status-pill rounded-circle"></span>
+								<p class="mx-0 my-0 px-0 py-0 fs-6 align-bottom secondary-color-subtle">${friend.alias} (@${friend.username}) wants to add you as a friend.</p>
+							</div>
+							<div class="d-flex gap-2">
+								<button type="button" class="btn btn-success btn-sm friend-accept">Accept</button>
+								<button type="button" class="btn btn-danger btn-sm friend-reject">Reject</button>
+							</div>
+						</li>
+					`);
+				}).join('');
+			}
 			requestList.innerHTML = requestListHtml;
 		}
 		else {
@@ -109,18 +116,29 @@ async function	loadFriendList() {
 		const responseJson = await response.json();
 		console.log(responseJson);
 		if (response.ok) {
-			const friendListHtml = responseJson.friends.map((friend) => {
-				return(`
-					<li class="friend-item pe-none px-4 rounded cs-border d-flex justify-content-between align-items-center mb-3" data-friend-username="${friend.username}">
-						<div class="d-flex align-items-center gap-3">
-							<span class="user-status-pill online" style="background-image: url('${friend.img}');"></span>
-							<p class="mx-0 my-0 px-0 py-0 fs-5 align-bottom">@${friend.username}</p>
-							<p class="mx-0 my-0 px-0 py-0 fs-6 align-bottom secondary-color-subtle">${friend.alias}</p>
-						</div>
-						<i class="fa-regular fa-trash-can fa-lg delete-friend pe-auto"></i>
-					</li>	
-				`);
-			}).join('');
+			let friendListHtml;
+			if (responseJson.friends.length < 1) {
+				friendListHtml = /* html */ `
+					<p class="fs-4 m-2 p-0 secondary-color-subtle">No friends yet</p>`;
+			}
+			else {
+				friendListHtml = responseJson.friends.map((friend) => {
+					return( /* html */`
+						<li class="friend-item pe-none px-4 rounded cs-border d-flex justify-content-between align-items-center mb-2" data-friend-username="${friend.username}">
+							<div class="d-flex align-items-center gap-3">
+								<span class="user-status-pill rounded-circle position-relative" style="background-image: url('${friend.img}');">
+									<span class="position-absolute top-0 start-0 translate-middle p-2 bg-danger rounded-circle">
+    									<span class="visually-hidden">New alerts</span>
+  									</span>
+								</span>
+								<p class="mx-0 my-0 px-0 py-0 fs-5 align-bottom">@${friend.username}</p>
+								<p class="mx-0 my-0 px-0 py-0 fs-6 align-bottom secondary-color-subtle">${friend.alias}</p>
+							</div>
+							<i class="fa-regular fa-trash-can fa-lg delete-friend pe-auto"></i>
+						</li>	
+					`);
+				}).join('');
+			}
 			friendList.innerHTML = friendListHtml;
 		}
 		else {

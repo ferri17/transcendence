@@ -18,19 +18,20 @@ def get_friend_details(user, pend):
     for friendship in friendships:
         if friendship.usersid1 == user:
             friend = friendship.usersid2
-            mine = True
+            mine = False
         else:
             friend = friendship.usersid1
-            mine = False
-        friends.append({
-            'id': friend.id,
-            'username': friend.username,
-            'alias': friend.alias,
-            'first_name': friend.first_name,
-            'last_name': friend.last_name,
-            'img': "http://localhost:8080" + friend.img.url,
-            'mine': mine
-        })
+            mine = True
+        if pend == False or (pend == True and mine == True) :
+            friends.append({
+                'id': friend.id,
+                'username': friend.username,
+                'alias': friend.alias,
+                'first_name': friend.first_name,
+                'last_name': friend.last_name,
+                'img': "http://localhost:8080" + friend.img.url,
+                'mine': mine
+            })
 
     return list(friends)
 
@@ -81,6 +82,8 @@ def add_friend(request):
     try:
         username = request.POST["username"]
         fromuser = request.user
+        if username == fromuser.username:
+            return JsonResponse({'error': 'You need friends, so please stop adding yourself'}, status=400)
         if not fromuser or fromuser == AnonymousUser() or not username:
             return JsonResponse({'error': 'Missing Access Token'}, status=400)
         if Users.objects.filter(username=username).exists():
@@ -92,7 +95,7 @@ def add_friend(request):
             newFriend.save()
             return JsonResponse(response)
         else:
-                return JsonResponse({'error': 'Username doesn\'t exist'}, status=400)
+            return JsonResponse({'error': 'Username doesn\'t exist'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -104,8 +107,8 @@ def confirm_friends(request):
         fromuser = request.user
         if not fromuser or fromuser == AnonymousUser() or not username:
             return JsonResponse({'error': 'Missing Access Token'}, status=400)
-        if Users.objects.filter(alias=username).exists():
-            user = Users.objects.get(alias=username)
+        if Users.objects.filter(username=username).exists():
+            user = Users.objects.get(username=username)
             if (Friends.objects.filter((Q(usersid1=user) & Q(usersid2=fromuser) & Q(pending=True))).exists()):
                 friend = Friends.objects.get(usersid1=user, usersid2=fromuser, pending=True)
                 friend.pending = False
@@ -113,6 +116,7 @@ def confirm_friends(request):
                 return JsonResponse({'success': 'New friends'})
             else:
                 return JsonResponse({'error': 'Not pending request'}, status=400)
+        return JsonResponse({'error': 'Not pending request'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
@@ -124,8 +128,8 @@ def delete_friend(request):
         fromuser = request.user
         if not fromuser or fromuser == AnonymousUser() or not username:
             return JsonResponse({'error': 'Missing Access Token'}, status=400)
-        if Users.objects.filter(alias=username).exists():
-            user = Users.objects.get(alias=username)
+        if Users.objects.filter(username=username).exists():
+            user = Users.objects.get(username=username)
             if (Friends.objects.filter((Q(usersid1=user) & Q(usersid2=fromuser))).exists()):
                 friend = Friends.objects.get(usersid1=user, usersid2=fromuser)
                 friend.delete()
@@ -136,6 +140,7 @@ def delete_friend(request):
                 return JsonResponse({'success': 'Deleted a friend YOU ARE A BAD PERSON:('})
             else:
                 return JsonResponse({'error': 'No Friends to delete :('}, status=400)
+        return JsonResponse({'error': 'Not pending request'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 

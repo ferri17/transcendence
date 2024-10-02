@@ -547,7 +547,7 @@ svg.light-mode-switch:hover {
 .toast-header p {
 	margin: 0;
 	color: var(--bs-blacky);
-	background-color: var(--bs-cream);
+	/* background-color: var(--bs-cream); */
 }
 
 .toast-warning .toast-header {
@@ -568,21 +568,12 @@ svg.light-mode-switch:hover {
 }
 
 .user-status-pill {
-	border-radius: 5000px;
 	width: 30px;
 	height: 30px;
 	background-image: url('/src/assets/profile_chicken.jpg');
 	background-size: cover;
 	background-position: center; 
 	background-repeat: no-repeat; 
-}
-
-.user-status-pill.online {
-	border: 4px solid var(--bs-success);
-}
-
-.user-status-pill.offline {
-	border: 4px solid var(--bs-danger);
 }
 
 .delete-friend {
@@ -609,13 +600,9 @@ svg.light-mode-switch:hover {
 	background-color: var(--red-subtle);
 }
 
-.friend-accept-reject {
-	transition: transform 0.15s ease;
-}
-
-.friend-accept-reject:hover {
-	transform: scale(1.25);
-	cursor: pointer;
+.friend-request-item:last-child,
+.friend-item:last-child {
+	margin-bottom: 0 !important;
 }
 
 @media (width < 992px) {

@@ -14,10 +14,10 @@ class NavBar extends HTMLElement {
 			<li class="nav-item dropdown">
 				<a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profile</a>
 				<ul class="dropdown-menu dropdown-menu-end">
-					<li><a class="dropdown-item" href="/profile" data-link><i class="fa-regular fa-user fa-lg"></i>Profile</a></li>
-					<li><a class="dropdown-item" href="/friends" data-link><i class="fa-regular fa-face-laugh-wink fa-lg"></i>Friends</a></li>
-					<li><a class="dropdown-item" href="/match-history" data-link><i class="fa-regular fa-chart-bar fa-lg"></i>Match history</a></li>
-					<li><a id="logout-btn" class="dropdown-item" href="" data-link><i class="fa-solid fa-arrow-right-from-bracket fa-lg"></i>Log out</a></li>
+					<li><a class="dropdown-item" href="/profile" data-link><i class="fa-regular fa-user fa-lg me-2"></i>Profile</a></li>
+					<li><a class="dropdown-item" href="/friends" data-link><i class="fa-regular fa-face-laugh-wink fa-lg me-2"></i>Friends</a></li>
+					<li><a class="dropdown-item" href="/match-history" data-link><i class="fa-regular fa-chart-bar fa-lg me-2"></i>Match history</a></li>
+					<li><a id="logout-btn" class="dropdown-item" href="" data-link><i class="fa-solid fa-arrow-right-from-bracket fa-lg me-2"></i>Log out</a></li>
 				</ul>
 			</li>
 			`;

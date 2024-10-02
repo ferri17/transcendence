@@ -68,7 +68,7 @@ export function generateLangs(file, atributes = false)
 		item.addEventListener('click', () => {
 			const	language_i18 = item.getAttribute('value');
 			i18next.changeLanguage(language_i18, (err, t) => {
-				changeItemLanguage(t)
+				changeItemLanguage(t);
 			});
 			localStorage.setItem('language', language_i18);
 		});
