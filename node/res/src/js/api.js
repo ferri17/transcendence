@@ -474,15 +474,14 @@ export async function leaveWaitRoom(){
         let endpoint = `http://${DN}:8000/game/waitingroom/delete/${roomId}/`;
         console.log("delete path is ", endpoint);
         let resp = await fetchWithAuth(endpoint, payload);
-        if (resp.ok){
-            let json = await resp.json();
+        if (resp.ok)
             localStorage.removeItem("waitroomId");
-            return json;
-        }
         else{
             let error_txt = await resp.text();
             console.log("issue on deleting the ressrouce", error_txt);
         }
+        return resp;
+
     }
     catch(error)
     {

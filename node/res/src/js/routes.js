@@ -107,6 +107,7 @@ export async function	router() {
 		if (route) {
 			if (isAuth === route.auth) {
 				document.title = route.title;
+				console.log(param);
 				if (param)
 					app.innerHTML = route.render(param);
 				else

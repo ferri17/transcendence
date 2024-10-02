@@ -124,10 +124,12 @@ def join_waitroom(request, pk):
 
 @api_view(['DELETE'])
 def delete_waitroom(request, pk):
+    logger.info("HOLA")
     room = get_object_or_404(WaitRoom, genId=pk)
     if room.owner != request.user:
         return(Response(status=status.HTTP_401_UNAUTHORIZED))
     room.delete()
+    logger.info("ADIOS")
     return (Response(status=status.HTTP_204_NO_CONTENT))
 
 @api_view(['POST'])

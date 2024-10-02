@@ -95,6 +95,12 @@ class Tournament extends HTMLElement {
 customElements.define('tourna-ment', Tournament);
 
 export default function tournament (room) {
+    if (room == undefined)
+    {
+        history.pushState(null,"","/");
+        router();
+        return;
+    }
     return (`<tourna-ment data-id="${room.id}"></tourna-ment>`);
 }
 

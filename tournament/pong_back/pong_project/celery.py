@@ -25,7 +25,7 @@ app.conf.beat_schedule = {
     },
     'manage-ai-players': {
         'task': 'game.tasks.manage_full_ai_match',
-        'schedule': crontab(minute='*/3'),  # Every minutes
+        'schedule': crontab(minute='*'),  # Every minutes
     },
 }
 

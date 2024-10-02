@@ -147,7 +147,11 @@ body {
 	transition: all 0.25s ease-out;
 }
 
-div, p, button {
+.form-select{
+	color: var(--bs-cs-secondary);
+}
+
+div, p, button, span, option{
 	color: var(--bs-cs-secondary);
 }
 
