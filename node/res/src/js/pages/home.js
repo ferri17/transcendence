@@ -51,7 +51,7 @@ class HomeOut extends HTMLElement {
 			e.preventDefault();
 			const formData = new FormData(formLogin);
 			try {
-				const response = await fetch("http://localhost:8080/loginWeb/", {
+				const response = await fetch("https://localhost:3001/login/loginWeb/", {
 					method: "POST",
 					body: formData,
 				});
@@ -82,7 +82,7 @@ class HomeAuthorized extends HTMLElement {
 	}
 	// <h1>Hello, ${userName} </h1>
 	connectedCallback() {
-		fetch('http://localhost:8080/info_user/', {
+		fetch('https://localhost:3001/login/info_user/', {
 			method: 'GET',
 			headers: {
 				'Authorization': 'Bearer ' + getCookie('token'),

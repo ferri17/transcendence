@@ -22,8 +22,6 @@ services:
       - login_data:/home/dtome-pe/login/
     env_file:
       - .env
-    ports:
-      - "8080:8080"
     networks:
       - pongnet
     depends_on:
