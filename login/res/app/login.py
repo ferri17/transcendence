@@ -107,18 +107,22 @@ def insertLogin(tokken):
 
 @api_view(['POST'])
 def loginIntra(request):
-    body = json.loads(request.body.decode('utf-8'))
-    if (not body.get('code') or not body.get('state')):
-        return JsonResponse({'error': 'Missing state or code'}, status=400)
-    response = {'response': 'POST'}
-    params = {
-        'grant_type': 'authorization_code',
-        'client_id': os.environ['UID'],
-        'client_secret': os.environ['SECRET'],
-        'code': body.get('code'),
-        'redirect_uri': "http://localhost:3000/",
-        'state': body.get('state')
-    }
+    try:
+        body = json.loads(request.body.decode('utf-8'))
+        if (not body.get('code') or not body.get('state')):
+            return JsonResponse({'error': 'Missing state or code'}, status=400)
+        response = {'response': 'POST'}
+        params = {
+            'grant_type': 'authorization_code',
+            'client_id': os.environ['UID'],
+            'client_secret': os.environ['SECRET'],
+            'code': body.get('code'),
+            'redirect_uri': "http://localhost:3000/",
+            'state': body.get('state')
+        }
+    except Exception as e:
+        logger.info(str(e))
+        return JsonResponse({'error': str(e)}, status=400)
     try:
         response = post42("/oauth/token", params)
         if response.status_code != 200:
