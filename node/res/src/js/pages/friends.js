@@ -123,11 +123,12 @@ async function	loadFriendList() {
 			}
 			else {
 				friendListHtml = responseJson.friends.map((friend) => {
+					const statusColor = friend.online ? 'bg-success' : 'bg-danger';
 					return( /* html */`
 						<li class="friend-item pe-none px-4 rounded cs-border d-flex justify-content-between align-items-center mb-2" data-friend-username="${friend.username}">
 							<div class="d-flex align-items-center gap-3">
 								<span class="user-status-pill rounded-circle position-relative" style="background-image: url('${friend.img}');">
-									<span class="position-absolute top-0 start-0 translate-middle p-2 bg-danger rounded-circle">
+									<span class="position-absolute top-0 start-0 translate-middle p-2 ${statusColor} rounded-circle">
     									<span class="visually-hidden">New alerts</span>
   									</span>
 								</span>

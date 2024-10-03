@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import { router } from '../routes';
 import { createToast } from '../components/toast';
 import { updateUserInfo } from '../main';
+import { generateLangs } from '../languages';
 
 class HomeOut extends HTMLElement {
 	constructor() {
@@ -34,6 +35,7 @@ class HomeOut extends HTMLElement {
 		`;
 	}
 	connectedCallback() {
+		generateLangs('home-out');
 		Lottie.loadAnimation({
 			container: document.getElementById('paddle-animation'),
 			renderer: 'svg',

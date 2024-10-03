@@ -12,12 +12,12 @@ class NavBar extends HTMLElement {
 			optionalElements = /* html */`
 			<li><a href="/" id="play-btn" class="nav-link" data-link>Play</a></li>
 			<li class="nav-item dropdown">
-				<a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profile</a>
+				<a id="profile-btn" class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profile</a>
 				<ul class="dropdown-menu dropdown-menu-end">
-					<li><a class="dropdown-item" href="/profile" data-link><i class="fa-regular fa-user fa-lg me-2"></i>Profile</a></li>
-					<li><a class="dropdown-item" href="/friends" data-link><i class="fa-regular fa-face-laugh-wink fa-lg me-2"></i>Friends</a></li>
-					<li><a class="dropdown-item" href="/match-history" data-link><i class="fa-regular fa-chart-bar fa-lg me-2"></i>Match history</a></li>
-					<li><a id="logout-btn" class="dropdown-item" href="" data-link><i class="fa-solid fa-arrow-right-from-bracket fa-lg me-2"></i>Log out</a></li>
+					<li><a class="dropdown-item" href="/profile" data-link><i class="fa-regular fa-user fa-lg me-2"></i><span id="settings-text">Settings</span></a></li>
+					<li><a class="dropdown-item" href="/friends" data-link><i class="fa-regular fa-face-laugh-wink fa-lg me-2"></i><span id="friends-text">Friends</span></a></li>
+					<li><a class="dropdown-item" href="/match-history" data-link><i class="fa-regular fa-chart-bar fa-lg me-2"></i><span id="match-history-text">Match history</span></a></li>
+					<li><a id="logout-btn" class="dropdown-item" href="" data-link><i class="fa-solid fa-arrow-right-from-bracket fa-lg me-2"></i><span id="logout-text">Log out</span></a></li>
 				</ul>
 			</li>
 			`;
@@ -36,13 +36,14 @@ class NavBar extends HTMLElement {
 							<ul class="topnav__links d-flex align-items-center gap-4">
 								${optionalElements}
 								<li class="nav-item dropdown">
-									<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+									<a id="language-btn" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 										Language
 									</a>
 									<ul class="dropdown-menu dropdown-menu-end">
-									<li class="language-select" value="cat"><a class="dropdown-item" href="#">Catalan</a></li>
-									<li class="language-select" value="es"><a class="dropdown-item" href="#">Spanish</a></li>
-									<li class="language-select" value="en"><a class="dropdown-item" href="#">English</a></li>
+										<li class="language-select" value="ca"><a id="ca-btn" class="dropdown-item" href="#">Catalan</a></li>
+										<li class="language-select" value="es"><a id="es-btn" class="dropdown-item" href="#">Spanish</a></li>
+										<li class="language-select" value="en"><a id="en-btn" class="dropdown-item" href="#">English</a></li>
+										<li class="language-select" value="fr"><a id="fr-btn" class="dropdown-item" href="#">French</a></li>
 									</ul>
 								</li>
 								<li class="d-flex align-items-center">
@@ -73,7 +74,7 @@ class NavBar extends HTMLElement {
 		setColorModeIcon();
 	}
 	connectedCallback() {
-		// generateLangs("navbar", this.hasAttribute('data-authorized'))
+		generateLangs()
 		const	burgerButton = document.querySelector('.topnav__burger');
 		const	topnavMenu = document.querySelector('.topnav__menu');
 		const	topnavList = document.querySelector('.topnav__list');
@@ -137,6 +138,20 @@ class NavBar extends HTMLElement {
 				});
 			}
 		}
+
+		/* Navbar language selector listeners */
+		/* const languageSelect = document.querySelectorAll('.language-select');
+		if (languageSelect) {
+			languageSelect.forEach( (languageItem) => {
+				languageItem.addEventListener( () => {
+					const	language_i18 = item.getAttribute('value');
+					i18next.changeLanguage(language_i18, (err, t) => {
+					changeItemLanguage(t);
+					});
+			localStorage.setItem('language', language_i18);
+				})
+			});
+		} */
 	}
 }
 

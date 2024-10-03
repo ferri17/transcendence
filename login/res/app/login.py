@@ -95,8 +95,12 @@ def insertLogin(tokken):
                 if value["status"] == 'error':
                     return AnonymousUser()
                 if value["status"] == 'error intra':
+                    userStatus = UserStatus.objects.create(users=user, is_online=False)
+                    userStatus.save()
                     return user
                 user.save()
+                userStatus = UserStatus.objects.create(users=user, is_online=False)
+                userStatus.save()
                 return user
             return Users.objects.get(intra_id=body.get('id'))
         else:

@@ -30,8 +30,10 @@ def get_friend_details(user, pend):
                 'first_name': friend.first_name,
                 'last_name': friend.last_name,
                 'img': "http://localhost:8080" + friend.img.url,
-                'mine': mine
+                'mine': mine,
+                'online': UserStatus.objects.get(users=user).is_online
             })
+
 
     return list(friends)
 
