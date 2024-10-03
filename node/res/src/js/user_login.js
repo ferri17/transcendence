@@ -65,29 +65,38 @@ function clearURL() {
 
 ///////////////////////////////////////////// USER STATUS /////////////////////////////////////////////
 
-// function conectWB(id, dataToken)
-// {
-//     const socket = new WebSocket(`ws://localhost:8000/ws/user_status/?token=${dataToken["access"]}`);
-//     socket.onopen = function(event) {
-//         console.log("Conexión WebSocket establecida.");
-//     };
+export var socket = null;
+
+export function conectWB(access_token)
+{
+    socket = new WebSocket(`ws://localhost:8080/ws/user_status/?token=${access_token}`);
+    socket.onopen = function(event) {
+        console.log("Conexión WebSocket establecida.");
+    };
     
-//     socket.onmessage = function(event) {
-//         const data = JSON.parse(event.data);
-//         console.log("Mensaje recibido:", data);
-//     };
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log("Mensaje recibido:", data);
+    };
     
-//     socket.onerror = function(error) {
-//         console.error("Error en WebSocket:", error);
-//     };
+    socket.onerror = function(error) {
+        console.error("Error en WebSocket:", error);
+    };
     
-//     socket.onclose = function(event) {
-//         console.log("Conexión WebSocket cerrada.");
-//     };
-//     document.cookie = `token=${dataToken["access"]}; expires=${expiresDate(dataToken["token_exp"]).toUTCString()}; Secure; SameSite=Strict`;
-//     document.cookie = `id=${id}; expires=${expiresDate(dataToken["token_exp"]).toUTCString()}; Secure; SameSite=Strict`;
-//     document.cookie = `refresh=${dataToken["refresh"]}; expires=${expiresDate(dataToken["refresh_exp"]).toUTCString()}; Secure; SameSite=Strict`;
-// }
+    socket.onclose = function(event) {
+        console.log("Conexión WebSocket cerrada.");
+    };
+}
+
+export function disconnectWB() {
+    if (socket) {
+        socket.close();
+        console.log("WebSocket desconectado manualmente.");
+        socket = null; // Limpiamos la referencia del socket
+    } else {
+        console.log("No hay una conexión WebSocket activa.");
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -146,39 +155,41 @@ async function refresh_token(refresh)
 ///////////////////////////////////////// LOGIN INTRA ////////////////////////////////////////////////
 
 function callBackAccess() {
-	if (!getCookie('token'))
-	{
-		const refresh = getCookie('refresh');
-		if (refresh)
-			refresh_token(refresh);
-	}
-	let vars = getPathVars();
-	if (!vars['code'] || !vars['state'])
-		return ;
-	fetch('http://localhost:8080/loginIntra/', {
-		method: 'POST',
-		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(getPathVars())
-	})
-		.then(response => {
-			if (!response.ok) {
-				throw new Error('Network response was not ok ' + response.statusText);
-			}
-			return response.json();
-		})
-		.then(data => {
-			if (data['access'])
-			{
-				clearURL();
-				document.cookie = `token=${data['access']}; expires=${expiresDate(data['token_exp']).toUTCString()}; Secure; SameSite=Strict`;
-				document.cookie = `refresh=${data['refresh']}; expires=${expiresDate(data['refresh_exp']).toUTCString()}; Secure; SameSite=Strict`;
-				router();
-			}
-		})
-		.catch(error => console.error('There has been a problem with your fetch operation:', error));
+    if (!getCookie("token"))
+    {
+        // console.log(getCookie('refresh'))
+        const refresh = getCookie("refresh");
+        if (refresh)
+            refresh_token(refresh);
+    }
+    let vars = getPathVars();
+    if (!vars["code"] || !vars["state"])
+        return ;
+    fetch('http://localhost:8080/loginIntra/', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(getPathVars())
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data["access"])
+        {
+            clearURL();
+            conectWB(data['access']);
+            document.cookie = `token=${data["access"]}; expires=${expiresDate(data["token_exp"]).toUTCString()}; Secure; SameSite=Strict`;
+            document.cookie = `refresh=${data["refresh"]}; expires=${expiresDate(data["refresh_exp"]).toUTCString()}; Secure; SameSite=Strict`;
+            router();
+        }
+    })
+    .catch(error => console.error('There has been a problem with your fetch operation:', error));
 }
 
 window.addEventListener('DOMContentLoaded', () => {

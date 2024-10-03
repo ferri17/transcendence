@@ -2,6 +2,7 @@ import { router } from '../routes';
 import { updateLightMode } from '../main';
 import { createToast } from './toast';
 import { generateLangs } from '../languages';
+import { disconnectWB } from '../user_login';
 
 class NavBar extends HTMLElement {
 	constructor() {
@@ -10,7 +11,9 @@ class NavBar extends HTMLElement {
 		let	optionalElements = '';
 		if (this.hasAttribute('data-authorized')) {
 			optionalElements = /* html */`
-			<li><a href="/" id="play-btn" class="nav-link" data-link>Play</a></li>
+			<li><a href="/tournament" class="nav-link" data-link>Tournament</a></li>
+			<li><a href="/waitroom" class="nav-link" data-link>Play Remote</a></li>
+			<li><a href="/gamebot" id="play-btn" class="nav-link" data-link>Play Local</a></li>
 			<li class="nav-item dropdown">
 				<a id="profile-btn" class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profile</a>
 				<ul class="dropdown-menu dropdown-menu-end">
@@ -126,8 +129,8 @@ class NavBar extends HTMLElement {
 				logoutBtn.addEventListener('click', () => {
 					createToast('successful','Hope to see you back soon!');
 					document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
-					document.cookie = "id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
 					document.cookie = "refresh=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";
+				disconnectWB()
 					localStorage.removeItem('username');
 					localStorage.removeItem('alias');
 					localStorage.removeItem('name');
@@ -138,20 +141,6 @@ class NavBar extends HTMLElement {
 				});
 			}
 		}
-
-		/* Navbar language selector listeners */
-		/* const languageSelect = document.querySelectorAll('.language-select');
-		if (languageSelect) {
-			languageSelect.forEach( (languageItem) => {
-				languageItem.addEventListener( () => {
-					const	language_i18 = item.getAttribute('value');
-					i18next.changeLanguage(language_i18, (err, t) => {
-					changeItemLanguage(t);
-					});
-			localStorage.setItem('language', language_i18);
-				})
-			});
-		} */
 	}
 }
 

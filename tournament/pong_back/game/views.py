@@ -1,23 +1,67 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from .models import Users, Match, WaitRoom, Tournament, Tourparticipation
-from .serializer import CustomUserSerializer, MatchSerializer, MatchDetailSerializer, RoomSerializer, TournamentSerializer, TournamentDetailSerializer, ParticipSerializer, ParticipDetailSerializer
+from .serializer import CustomUserSerializer, MatchSerializer, MatchDetailSerializer, RoomSerializer, RoomDetailSerializer, TournamentSerializer, TournamentDetailSerializer, ParticipSerializer, ParticipDetailSerializer
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from rest_framework import status
 from django.db import transaction
 from rest_framework.exceptions import ValidationError, NotFound
 import logging, uuid, random
-from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+import json
+
 logger = logging.getLogger(__name__)
 
 # Create your views here.
 
 #added from tuto
 from django.http import HttpResponse
+
+# /////////////////////////////////////////////////
+
+@api_view(["POST"])
+def modify_match_ai(request, pk):
+    try:
+        match = get_object_or_404(Match, id=pk)
+        if match.state == 'finished':
+            return(Response({"error": "Match already done"}, status=status.HTTP_400_BAD_REQUEST))
+        body = json.loads(request.body.decode('utf-8'))
+        score_ai = body.get('score_ai')
+        score_user = body.get('score_user')
+        user = request.user
+        if match.player1 == user:
+            match.score_p1 = score_user
+            match.score_p2 = score_ai
+            match.state = 'finished'
+            match.save()
+            ai = match.player2
+        elif match.player2 == user:
+            match.score_p2 = score_user
+            match.score_p1 = score_ai
+            match.state = 'finished'
+            match.save()
+            ai = match.player1
+        else:
+            return(Response({"error": "Match not Found"}, status=status.HTTP_400_BAD_REQUEST))
+        if score_user < score_ai:
+            tour = match.tournament
+            parti = Tourparticipation.objects.get(userid=user,tournament=tour)
+            parti.is_eliminated = True
+        else:
+            tour = match.tournament
+            parti = Tourparticipation.objects.get(userid=ai,tournament=tour)
+            parti.is_eliminated = True
+        parti.save()
+    except Exception as e:
+        return (Response({"error":str(e)}, status=status.HTTP_400_BAD_REQUEST))
+    return JsonResponse({"status": pk})
+
+# /////////////////////////////////////////////////
+
 
 @api_view(["GET", "POST"])
 def player_list(request):
@@ -36,28 +80,30 @@ def player_list(request):
         
 
 class MatchList(ListAPIView):
-    queryset = Match.objects.all()
     serializer_class = MatchDetailSerializer
 
-@api_view(['POST'])
-def create_waitroom(request):
-    owner = request.user
-    if WaitRoom.objects.filter(owner=owner).exists():
-        roomid = WaitRoom.objects.filter(owner=owner).first().genId
-        return(Response({"details":"there is already a waitroom", "genId": roomid}, status=status.HTTP_406_NOT_ACCEPTABLE)) #not sure on the content
-    wait_room = WaitRoom.objects.create(owner=owner)
-    wait_room.save()
-    serialized = RoomSerializer(wait_room)
-    return (Response(serialized.data, status=status.HTTP_201_CREATED)) #is deserialized data necessary ?
+    def get_queryset(self):
+        player = self.request.user
+        return (Match.objects.filter(player1=self.request.user) | Match.objects.filter(player2=self.request.user))
 
-@api_view(['GET']) #CAN BE REPLACED BY GENERIC CONCRETE ON RETRIEVE
-def get_waitroom(request):
-    owner = request.user
-    room_search = WaitRoom.objects.filter(owner=owner).first()
-    if not room_search:
-        return(Response(status=status.HTTP_404_NOT_FOUND))
-    serialized = RoomSerializer(room_search)
-    return(Response(serialized.data, status=status.HTTP_200_OK))
+class createWaitroom(CreateAPIView):
+    queryset = WaitRoom.objects.all()
+    serializer_class = RoomSerializer
+
+    def perform_create(self, serializer):
+        owner = self.request.user
+        serializer.save(owner=owner,attendee=None)
+
+
+class getWaitRoom(RetrieveAPIView):
+    '''
+    return a room instance per its genId
+    '''
+    queryset = WaitRoom.objects.all()
+    serializer_class = RoomDetailSerializer
+    lookup_field = "genId"
+
+
 
 
 class ListWaitRoom(ListAPIView):
@@ -78,10 +124,12 @@ def join_waitroom(request, pk):
 
 @api_view(['DELETE'])
 def delete_waitroom(request, pk):
+    logger.info("HOLA")
     room = get_object_or_404(WaitRoom, genId=pk)
     if room.owner != request.user:
         return(Response(status=status.HTTP_401_UNAUTHORIZED))
     room.delete()
+    logger.info("ADIOS")
     return (Response(status=status.HTTP_204_NO_CONTENT))
 
 @api_view(['POST'])
@@ -96,7 +144,7 @@ def create_tournament(request):
             return Response({"error": "You are already in a tournament waiting room"}, status=status.HTTP_406_NOT_ACCEPTABLE)
         tourn = Tournament.objects.create(n_humans=n_h, size=size)
         partip = Tourparticipation.objects.create(userid = request.user, tournament=tourn)
-        # fill_with_ai(tourn.id)
+        fill_with_ai(tourn.id)
         result = Tournament.objects.get(pk=tourn.id)
         serialized = TournamentSerializer(result)
         return(Response(serialized.data, status=status.HTTP_201_CREATED))
@@ -238,8 +286,8 @@ class RandomMatch(APIView):
             m.state = "finished"
             m.save()
             serialized = MatchSerializer(m)
-            user_p1 = Users.objects.get(id=m.player1.id)
-            user_p2 = Users.objects.get(id=m.player2.id)
+            user_p1 = User.objects.get(id=m.player1.id)
+            user_p2 = User.objects.get(id=m.player2.id)
             if m.score_p1 < m.score_p2:
                     loser = user_p1
             else:
@@ -286,12 +334,15 @@ class UserMatchStatusView(APIView):
             if active_match:
                 if active_match.player2 is not None and active_match.player1 == user:
                     opponent = active_match.player2.username
+                    is_ai = active_match.player2.is_ai
                 elif active_match.player1 is not None and active_match.player2 == user:
                     opponent = active_match.player1.username
+                    is_ai = active_match.player1.is_ai
                 msg = {
                     "status": "match_to_play",
                     "match_id": active_match.id,
                     "opponent": opponent,
+                    "is_ai": is_ai
                 }
             else:
                 return Response({"status": "waiting_for_next_match"}, status=status.HTTP_200_OK)
@@ -304,36 +355,36 @@ class UserMatchStatusView(APIView):
             return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #************ UTILS FOR TOURNAMENT AND AI CREATION **********************/
-# def fill_with_ai(tourn_id):
-#     try:
-#         logger.info("======================= executting fill_w_ai")
-#         id = Tournament.objects.get(pk=tourn_id)
-#         ai_needed = id.size - id.n_humans
-#         ai_registered = set()
-#         ai_profiles = Profile.objects.filter(is_ai=True).distinct()
-#         ai_count = ai_profiles.count()
-#         logger.info(f"TOTAL NUMBER OF AI is {ai_count} and we need {ai_needed}")
-#         if ai_count < ai_needed:
-#             n_create = ai_needed - ai_count
-#             logger.info(f"we need to create {n_create} AI")
-#             for _ in range(n_create):
-#                 temp_name = "AI_" + uuid.uuid4().hex[:10]
-#                 user = Users.objects.create(username=temp_name)  # Create a new User instance
-#                 ai = Profile.objects.create(user=user, alias=temp_name, bio="", is_ai=True)
-#                 logger.info(f"**** LOOP AI CREATION {_}, ai name {temp_name} now queryset is {ai_profiles.count()}")
-#         # Register AI players to fill the tournament
-#         ai_list = [x.alias for x in ai_profiles]
-#         logger.info(f"******** now the list of ai is {ai_list}")
-#         for ai in ai_profiles.iterator():
-#             logger.info(f"================= ENTER AI PROFILE LOOP, registered ai is {len(ai_registered)}")
-#             if len(ai_registered) >= ai_needed:
-#                 break
-#             ai_registered.add(ai)
-#             logger.info(f"================= ADD AI {ai.user.username}")
-#             Tourparticipation.objects.create(userid=ai.user, tournament=id)
-#         logger.info(f"========== all players registered ==============")
-#     except Http404:
-#         logger.info("TOURNAMENT NOT FOUND FOR AI CREATION")
-#     except Exception as e:
-#         # Handle exceptions to ensure any error is reported
-#         logger.info(f"An error occurred: {str(e)}")
+def fill_with_ai(tourn_id):
+    try:
+        logger.info("======================= executting fill_w_ai")
+        id = Tournament.objects.get(pk=tourn_id)
+        ai_needed = id.size - id.n_humans
+        ai_registered = set()
+        ai_profiles = Users.objects.filter(is_ai=True).distinct()
+        ai_count = ai_profiles.count()
+        logger.info(f"TOTAL NUMBER OF AI is {ai_count} and we need {ai_needed}")
+        if ai_count < ai_needed:
+            n_create = ai_needed - ai_count
+            logger.info(f"we need to create {n_create} AI")
+            for _ in range(n_create):
+                temp_name = "AI_" + uuid.uuid4().hex[:10]
+                temp_alias = "HAL_" + uuid.uuid4().hex[:10]
+                ai = Users.objects.create(username=temp_name, intra=False, alias=temp_alias, is_ai=True)
+                logger.info(f"**** LOOP AI CREATION {_}, ai name {temp_name} now queryset is {ai_profiles.count()}")
+        # Register AI players to fill the tournament
+        ai_list = [x.alias for x in ai_profiles]
+        logger.info(f"******** now the list of ai is {ai_list}")
+        for ai in ai_profiles.iterator():
+            logger.info(f"================= ENTER AI PROFILE LOOP, registered ai is {len(ai_registered)}")
+            if len(ai_registered) >= ai_needed:
+                break
+            ai_registered.add(ai)
+            logger.info(f"================= ADD AI {ai.alias}")
+            Tourparticipation.objects.create(userid=ai, tournament=id)
+        logger.info(f"========== all players registered ==============")
+    except Http404:
+        logger.info("TOURNAMENT NOT FOUND FOR AI CREATION")
+    except Exception as e:
+        # Handle exceptions to ensure any error is reported
+        logger.info(f"An error occurred: {str(e)}")

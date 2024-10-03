@@ -18,10 +18,10 @@ from pathlib import Path
 
 load_dotenv()
 
-CONTRACT_ADDRESS = os.getenv('CONTRACT_ADDRESS')
-PATH_TO_ABI = os.getenv('PATH_TO_ABI')
-PRIVATE_KEY = os.getenv('PRIVATE_KEY')
-OWNER_ADDRESS = os.getenv('OWNER_ADDRESS')
+# CONTRACT_ADDRESS = os.getenv('CONTRACT_ADDRESS')
+# PATH_TO_ABI = os.getenv('PATH_TO_ABI')
+# PRIVATE_KEY = os.getenv('PRIVATE_KEY')
+# OWNER_ADDRESS = os.getenv('OWNER_ADDRESS')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'blockchain',
+    # 'blockchain',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -55,6 +55,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+#changed to use the customuser (users) and avoid conflict iwth auth_group_users and auth_permisisons
+AUTH_USER_MODEL = 'game.Users' 
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -91,13 +94,18 @@ ASGI_APPLICATION = 'pong_project.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer', 'CONFIG': {
+        "hosts": [("redis://redis:6379/1")],  # This points to Redis database 1 [16 b in k-v store of Redis queues]
+        },
     },
 }
 
 
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+
+import os
 
 DATABASES = {
     'default': {
@@ -109,9 +117,10 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
 # CORS definition
 CORS_ALLOW_ALL_ORIGINS = True
-AUTH_USER_MODEL = 'game.Users'
+
 #could be refined to 
 # CORS_ALLOWED_ORIGINS = [
 #     "file://",  # Allow access from local files
@@ -126,19 +135,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ],
 }
-
-############################### ANT ################################
-# REST_FRAMEWORK = {
-#     # 'DEFAULT_RENDERER_CLASSES': [
-#     #     'rest_framework.renderers.JSONRenderer',
-#     # ],
-#     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         # 'rest_framework.authentication.BasicAuthentication',
-#         # 'rest_framework.authentication.TokenAuthentication',
-#         'rest_framework_simplejwt.authentication.JWTAuthentication'
-#     ],
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -172,6 +168,20 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
+
+# celery settings
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+# Asegúrate de que BASE_DIR esté definido correctamente
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Celery Beat Schedule filename
+CELERY_BEAT_SCHEDULE_FILENAME = os.path.join(BASE_DIR, 'celery-beat-schedule')
+# Celery Worker State DB
+CELERY_WORKER_STATE_DB = os.path.join(BASE_DIR, 'celery-worker-state')
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

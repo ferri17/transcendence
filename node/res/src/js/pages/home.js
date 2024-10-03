@@ -1,5 +1,5 @@
 import Lottie from 'lottie-web';
-import { callApi42, is_authenticated, getCookie, expiresDate } from '../user_login';
+import { callApi42, is_authenticated, getCookie, expiresDate, conectWB } from '../user_login';
 import i18next from 'i18next';
 import { router } from '../routes';
 import { createToast } from '../components/toast';
@@ -60,6 +60,7 @@ class HomeOut extends HTMLElement {
 					body: formData,
 				});
 				const tokens = await response.json();
+				conectWB(tokens['access']);
 				if (!response.ok) {
 					throw (`${tokens.error}`);
 				}
@@ -67,7 +68,6 @@ class HomeOut extends HTMLElement {
 				document.cookie = `refresh=${tokens['refresh']}; expires=${expiresDate(tokens['refresh_exp']).toUTCString()}; Secure; SameSite=Strict`;
 				createToast('successful','Logged in successfully');
 				router();
-				
 			  } catch (e) {
 				createToast('warning', `Error: ${e}`);
 			  }

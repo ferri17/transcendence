@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = ['id', 'alias', 'campus', 'intra']
+        fields = ['id', 'alias', 'campus', 'intra', 'is_ai']
 
 class MatchSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,6 +18,15 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = WaitRoom
         fields = "__all__"
+        read_only_fields = ["owner","attendee"]
+
+class RoomDetailSerializer(serializers.ModelSerializer):
+    owner = CustomUserSerializer(read_only=True)
+    attendee = CustomUserSerializer(read_only=True)
+    class Meta:
+        model = WaitRoom
+        fields = "__all__"
+        read_only_fields = ["owner","attendee"]
 
 class TournamentSerializer(serializers.ModelSerializer):
     class Meta:

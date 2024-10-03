@@ -8,11 +8,11 @@ import logging, random, requests, os
 
 logger = logging.getLogger(__name__)
 
-Block_url = os.getenv('API_URL_BLOCKCHAIN')
+#Block_url = os.getenv('API_URL_BLOCKCHAIN')
 
 @receiver(post_save, sender=Match)
 def update_match_tournament(sender, instance, **kwargs):
-    if instance.state != "finished":
+    if instance.state != "finished" or instance.tournament is None:
         return
     try:
         winner = instance.player1 if instance.score_p1 > instance.score_p2 else instance.player2
@@ -28,7 +28,6 @@ def update_match_tournament(sender, instance, **kwargs):
                 n_match.state = "playing"
             n_match.save()
         else:
-            logger.info("****** SAVING TOURNAMENT END STATES ******* ")
             tourn = Tournament.objects.get(id = instance.tournament.id)
             loser = instance.player1 if (winner == instance.player2) else instance.player2
             tourn.winner = winner
@@ -76,51 +75,28 @@ def build_bracket_tournament(sender, instance, created,**kwargs):
             # Step 4: Reset the flag to False after operations are complete
             instance._signal_handling_in_progress = False
 
-@receiver(post_save, sender=Tournament)
-def save_tournament_blockchain(sender, instance, created, **kwargs):
-    if created:
-        return
-    if instance.state != "finished":
-        return
-    payload = { "winner" : instance.winner,
-        "runner_up" : instance.runner_up,
-        "final_score" : instance.final_score,
-        "participant_count" : instance.n_humans } 
-    try:
-        response = requests.post(Block_url, payload)
-        if response.status == 200 or response.status == 201:
-            logger.info("Tournament result successfully posted to blockchain.")
-        else:
-            logger.error(f"Failed to post tournament result to blockchain. Status code: {response.status_code}, Response: {response.text}")
-    except Exception as e:
-        logger.error(f"Exception occurred while posting to blockchain: {str(e)}")
+# @receiver(post_save, sender=Tournament)
+# def save_tournament_blockchain(sender, instance, created, **kwargs):
+#     logger.info(f"ENTERING BLOCKCHAIN SAVE TOURNAMENT with block url {Block_url}")
+#     if created:
+#         return
+#     if instance.state != "finished":
+#         return
+#     payload = { "winner" : instance.winner,
+#         "runner_up" : instance.runner_up,
+#         "final_score" : instance.final_score,
+#         "participant_count" : instance.n_humans } 
+#     try:
+#         logger.info(f"IT SHOULD SAVE TO BCKCHAIN WITH {payload} BUT WE ARE SAVING GAS")
+#         # response = requests.post(Block_url, payload)
+#         # if response.status == 200 or response.status == 201:
+#         #     logger.info("Tournament result successfully posted to blockchain.")
+#         # else:
+#         #     logger.error(f"Failed to post tournament result to blockchain. Status code: {response.status_code}, Response: {response.text}")
+#     except Exception as e:
+#         logger.error(f"Exception occurred while posting to blockchain: {str(e)}")
 
 
-
-
-def randomize_ai_game(instance, save_flag=True):
-    """
-    Randomizes an AI match and marks it as finished.
-    """
-    logger.info("Randomizing AI match.")
-    if instance.state != "playing":
-        return
-    # Ensure the match is part of a tournament
-    if instance.tournament is not None:
-        # Get player profiles
-        p1 = Users.objects.filter(id=instance.player1.id).first()
-        p2 = Users.objects.filter(id=instance.player2.id).first()
-
-        # Check if both players are AI
-        if p1 and p2 and p1.is_ai and p2.is_ai:
-            with transaction.atomic():
-                # Randomize the result
-                instance.score_p1 = 3  # Example random score
-                instance.score_p2 = 0  # Ensure total score is 3 for simplicity
-                instance.state = "finished"
-                if (save_flag == True):
-                    instance.save()
-                logger.info(f"AI match between {p1.alias} and {p2.alias} randomized.")
 
 def create_match(player1, player2, tournament, round):
     """
@@ -128,5 +104,7 @@ def create_match(player1, player2, tournament, round):
     """
     # Create the match within an atomic transaction
     with transaction.atomic():
-        match = Match.objects.create(player1=player1, player2=player2, tournament=tournament, round=round, state='waiting')
+        match = Match.objects.create(player1=player1, player2=player2, tournament=tournament, round = round,state='waiting')
     return match
+
+    

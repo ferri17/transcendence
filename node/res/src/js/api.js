@@ -62,10 +62,10 @@ export async function postPlayer(formData){
     }
 }
 
-export async function getWaitRoom(){
+export async function getWaitRoom(id){
     try{
 
-        let resp = await fetchWithAuth(`http://${DN}:8000/game/waitingroom/`);
+        let resp = await fetchWithAuth(`http://${DN}:8000/game/waitingroom/info/${id}`);
         if (resp.ok){
             let json = await resp.json();
             console.log("from json ", json);
@@ -75,7 +75,7 @@ export async function getWaitRoom(){
         else if (resp.status === 404) {
             console.log("Wait room not found");
             localStorage.removeItem('waitroomId'); // Clean up if room not found
-            return null;
+            return {"error":"Waitroom not Found"};
         }
         else {
             return null;
@@ -93,7 +93,7 @@ export async function getListWaitRoom(){
         let resp = await fetchWithAuth(`http://${DN}:8000/game/waitingroom/listopen/`,{cache:'no-cache'});
         if (resp.ok){
             let json = await resp.json();
-            console.log("from json ", json);
+            // console.log("from json ", json);
             return json;
         }
         else if (resp.status === 404) {
@@ -190,7 +190,7 @@ export async function getListTournament(){
         let resp = await fetchWithAuth(`http://${DN}:8000/game/tournament/openlist/`,{cache:'no-cache'});
         if (resp.ok){
             let json = await resp.json();
-            console.log("from json ", json);
+            // console.log("from json ", json);
             return json;
         }
         else if (resp.status === 404) {
@@ -259,14 +259,18 @@ export async function joinTournament(Id){
     }
 }
 
+var tester = 0;
+
 export async function getTournament(Id){
     try{
 
         let resp = await fetchWithAuth(`http://${DN}:8000/game/tournament/${Id}`);
-        console.log(resp.status)
+        // console.log(resp.status)
         if (resp.ok){
             let json = await resp.json();
-            console.log("from json ", json);
+            if (tester == 0)
+                console.log("from json ", json);
+            tester++;
             return json;
         }
         else if (resp.status === 404) {
@@ -288,7 +292,7 @@ export async function getPlayerListTournament(Id) {
     try {
         const response = await fetchWithAuth(`http://${DN}:8000/game/tournament/${Id}/participants/`);
         const players = await response.json();
-        console.log("in list playe api call reuslt is : ", players);
+        // console.log("in list playe api call reuslt is : ", players);
         return players;
     } catch (error) {
         console.error('Error fetching players:', error);
@@ -300,7 +304,7 @@ export async function getMatchesListTournament(Id) {
     try {
         const response = await fetchWithAuth(`http://${DN}:8000/game/tournament/${Id}/matches/`);
         const players = await response.json();
-        console.log("in list playe api call reuslt is : ", players);
+        // console.log("in list playe api call reuslt is : ", players);
         return players;
     } catch (error) {
         console.error('Error fetching players:', error);
@@ -312,7 +316,7 @@ export async function getPlayerTournnamentActive(id){
     try {
         const response = await fetchWithAuth(`http://${DN}:8000/game/tournament/${id}/is_active/`);
         const players = await response.json();
-        console.log("in list playe api call reuslt is : ", players);
+        // console.log("in list playe api call reuslt is : ", players);
         return players;
     } catch (error) {
         console.error('Error fetching players:', error);
@@ -421,7 +425,7 @@ async function fetchWithAuth(url, options = {}){
     let headers = options.headers || {}; //here we either create empty headers or use the on in options if passed
     headers['Authorization'] =`Bearer ${token}`;
     options.headers = headers;
-    console.log("in fetch with AUth url is : " + url);
+    // console.log("in fetch with AUth url is : " + url);
     let resp = await fetch(url, options);
     if (resp.status == 401){
         console.log("refreshig token in fetch wrapper");
@@ -431,6 +435,7 @@ async function fetchWithAuth(url, options = {}){
         options.headers = headers;
         resp = await fetch(url, options);
     }
+    let testing = resp.status
     return (resp);
 }
 
@@ -444,7 +449,7 @@ export async function getAuth(){
         if (resp.ok){
             let json = await resp.json();
             let txt_rep = JSON.stringify(json);
-            console.log("json is : " + txt_rep);
+            // console.log("json is : " + txt_rep);
             return json;
         }
         else {
@@ -455,5 +460,31 @@ export async function getAuth(){
     catch (error){
         console.log("Error fetching authentication", error);
         return [];
+    }
+}
+
+export async function leaveWaitRoom(){
+    try{
+        let payload = {'method':'DELETE', headers: {'Content-Type':'application/json'}};
+        const roomId = localStorage.getItem('waitroomId');
+        console.log("roomId is : ", roomId);
+        if (!roomId){
+            return null;
+        }
+        let endpoint = `http://${DN}:8000/game/waitingroom/delete/${roomId}/`;
+        console.log("delete path is ", endpoint);
+        let resp = await fetchWithAuth(endpoint, payload);
+        if (resp.ok)
+            localStorage.removeItem("waitroomId");
+        else{
+            let error_txt = await resp.text();
+            console.log("issue on deleting the ressrouce", error_txt);
+        }
+        return resp;
+
+    }
+    catch(error)
+    {
+        console.log("Caught Error : ", error);
     }
 }

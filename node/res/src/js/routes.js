@@ -10,6 +10,7 @@ import loading from './pages/loading.js';
 import signup from './pages/signup.js';
 import matchHistory from './pages/match_history.js';
 import { is_authenticated, getCookie } from './user_login.js';
+import renderLobby from './pages/renderLobby.js';
 //import about from './pages/about.js';
 //import settings from './pages/settings.js';
 
@@ -21,6 +22,7 @@ const routes = {
 	'/friends': { title: 'Friends', render: friends, auth: true},
 	'/signup': { title: 'Signup', render: signup, auth: false},
 	'/gamebot': { title: 'You will lose', render: gameai, auth: true},
+	'/gamebot/:id': { title: 'You will lose', render: gameai, auth: true},
 	'/waitroom': { title: 'HAVE FUN', render: waitroom, auth: true},
 	'/waitroom/create': { title: 'HAVE FUN', render: waitroom, auth: true},
 	'/waitroom/join': { title: 'HAVE FUN', render: waitroom, auth: true},
@@ -31,6 +33,7 @@ const routes = {
 	'/tournament/join': { title: "Game", render: tournamentRoom, auth: true},
 	'/match-history': { title: 'Match History', render: matchHistory, auth: true},
 	"/tournament/:id": { title: "Game", render: tournament, auth: true},
+	"/lobby/:id": { title: "Lobby", render: renderLobby, auth: true},
 };
 
 /* Select main container where different pages will render */
@@ -100,12 +103,16 @@ export async function	router() {
 	setTimeout(async () => {
 		const isAuth =  await is_authenticated(getCookie('token'));
 		const windowPathname = window.location.pathname;
-		let view = routes[windowPathname];
+		const {route, param} = routeSearch(windowPathname);
 		//updateActiveElementNavbar();
-		if (view) {
-			if (isAuth === view.auth) {
-				document.title = `TS | ${view.title}`;
-				app.innerHTML = view.render();
+		if (route) {
+			if (isAuth === route.auth) {
+				document.title = route.title;
+				console.log(param);
+				if (param)
+					app.innerHTML = route.render(param);
+				else
+					app.innerHTML = route.render();
 			}
 			else if (isAuth  && !view.auth) {
 				history.pushState('', '', '/');
@@ -123,5 +130,4 @@ export async function	router() {
 	}, 250);
 	
 };
-
 
